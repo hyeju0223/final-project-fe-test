@@ -11,7 +11,7 @@ export default function KakaoPayCancel() {
             <p>필요 시 다시 결제를 진행할 수 있습니다.</p>
 
             <button className="kakao-button" onClick={() => navigate("/")}>
-                홈
+                확인
             </button>
         </KakaoPayLayout>
     );

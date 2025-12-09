@@ -10,7 +10,7 @@ export default function KakaoPaySuccess() {
             <p>이용해 주셔서 감사합니다.</p>
 
             <button className="kakao-button" onClick={() => navigate("/")}>
-                홈
+                확인
             </button>
         </KakaoPayLayout>
     );

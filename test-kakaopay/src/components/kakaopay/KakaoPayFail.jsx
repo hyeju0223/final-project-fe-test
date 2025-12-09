@@ -10,7 +10,7 @@ export default function KakaoPayFail() {
             <p>다시 시도하거나 다른 결제 수단을 이용해 주세요.</p>
 
             <button className="kakao-button" onClick={() => navigate("/")}>
-                홈
+                확인
             </button>
         </KakaoPayLayout>
     );
