@@ -5,3 +5,78 @@
 .none-decortion {
   text-decoration: none;
 }
+
+.kakao-wrap {
+  width: 100vw;
+  height: 100vh;
+  background: #ffeb00;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.kakao-box {
+  width: 350px;
+  background: white;
+  padding: 40px 20px;
+  border-radius: 20px;
+  text-align: center;
+}
+
+.kakao-title {
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.kakao-content {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.kakao-button {
+  margin-top: 30px;
+  padding: 12px 16px;
+  background: #ffeb00;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+html {
+  /* box-shadow: 0 0 1px 0 red; */
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  /* box-shadow: 0 0 1px 0 red; */
+  margin: 0;
+  padding: 0;
+}
+
+div {
+  /* box-shadow: 0 0 1px 0 red; */
+  margin: 0;
+  padding: 0;
+}
+
+.child-fullscreen {
+  all: unset;
+  /* 부모 스타일 박살내기 */
+  position: fixed;
+  /* 부모 레이아웃에서 완전 탈출 */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  /* 화면 전체 덮기 */
+  background: #ffeb00;
+  /* 원하는 배경 */
+  display: block;
+  /* 필요하면 레이아웃 직접 선언 */
+  z-index: 99999;
+  /* 부모보다 앞으로 나오기 */
+}

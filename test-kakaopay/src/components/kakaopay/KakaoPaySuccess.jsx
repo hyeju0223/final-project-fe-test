@@ -1,19 +1,17 @@
-import { Link } from "react-router-dom";
-import Jumbotron from "../templates/Jumbotron";
-import "./KakaoPay.css";
-
+import { useNavigate } from "react-router-dom";
+import KakaoPayLayout from "./KakaoPayLayout";
 
 export default function KakaoPaySuccess() {
+    const navigate = useNavigate();
 
+    return (
+        <KakaoPayLayout title="결제가 완료되었습니다">
+            <p>카카오페이 결제가 정상적으로 처리되었습니다.</p>
+            <p>이용해 주셔서 감사합니다.</p>
 
-    return (<>
-
-        <Jumbotron subject="Final-Project-2조" detail="카카오결제 성공" />
-
-        <div className="row mt-4">
-            <div className="col">
-                <Link to="/" className="none-decortion">홈</Link>
-            </div>
-        </div>
-    </>)
+            <button className="kakao-button" onClick={() => navigate("/")}>
+                홈
+            </button>
+        </KakaoPayLayout>
+    );
 }
