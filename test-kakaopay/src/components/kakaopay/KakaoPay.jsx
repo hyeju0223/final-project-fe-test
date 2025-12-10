@@ -154,6 +154,7 @@ export default function KakaoPay() {
                                         <input type="checkbox" value={giftcard.giftcardNo}
                                             checked={giftcard.check} onChange={changeGiftcardCheck} />
                                     </td>
+
                                     <td className="checkbox-cell">
                                         {giftcard.giftcardName}
                                     </td>
