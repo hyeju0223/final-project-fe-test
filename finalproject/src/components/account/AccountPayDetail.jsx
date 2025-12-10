@@ -91,8 +91,6 @@ export default function AccountPayDetail() {
 
         <Jumbotron subject="결제 상세 정보 조회" detail={`${paymentNo}`} 번 거래 내역 조회></Jumbotron>
 
-        <hr />
-
         <h2 className="mt-5">결제 정보</h2>
         <div className="row mt-4">
             <div className="col">
