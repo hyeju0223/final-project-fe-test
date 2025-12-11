@@ -49,7 +49,7 @@ export default function AccountPayInformation() {
             className="fade-jumbotron"
             style={{ animationDelay: `${0.03}s` }}
         >
-            <Jumbotron subject="내 카카오페이 결제 내역" detail="내 카카오결제 내역을 알아봅니다."></Jumbotron>
+            <Jumbotron subject="내 카카오페이 결제 내역" detail="카카오페이 결제 내역을 알아봅시다."></Jumbotron>
         </div>
 
         <div

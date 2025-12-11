@@ -106,7 +106,7 @@ export default function AccountPayDetail() {
         <div className="row mt-4">
             <div className="col">
                 {payment === null ? (
-                    <h3>결제 정보 로딩 중...</h3>
+                    <h3>결제 정보 Loading</h3>
                 ) : (
 
                     <>
