@@ -10,7 +10,7 @@ export default function ChatSocket({ isChatOpen, onChatClose, currentChatNo }) {
 
     if (!isChatOpen || !currentChatNo) {
         return null;
-    }
+    } 
 
     //방 번호 수신
     // const {chatNo} = useParams();

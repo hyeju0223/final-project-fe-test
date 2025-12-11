@@ -344,7 +344,7 @@ const styles = {
     fontWeight: 'bold',
     fontSize: '16px',
     backgroundColor: '#fafafa'
-  },
+  }, 
   infoCard: {
     backgroundColor: '#fff',
     border: '1px solid #eee',

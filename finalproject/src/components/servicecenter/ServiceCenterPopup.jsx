@@ -8,7 +8,7 @@ export default function ServiceCenterPopup({ isOpen, onClose, onChatConnect }) {
     
     return (
 
-        <>
+        <> 
             <div className="card position-fixed"
                 style={{ bottom: "130px", right: "20px", width: "320px", borderRadius: "20px"}}>
                 <div className="card-header d-flex" style={{ borderBottom: "none" }}>

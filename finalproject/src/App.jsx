@@ -15,7 +15,7 @@ import ServiceCenterPopup from "./components/servicecenter/ServiceCenterPopup"
 import ChatSocket from "./components/servicecenter/ChatSocket"
 import useChat from "./utils/hooks/useChat"
 
-function App() {
+function App() { 
   const { isPopupOpen, openPopup, closePopup, isChatOpen,
           openChat, closeChat, chatNo, } = useChat();
 

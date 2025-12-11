@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import axios from 'axios'; 
 
 export default function useChat() {
   // 팝업의 열림/닫힘 상태

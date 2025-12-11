@@ -27,7 +27,7 @@ export const adminState = atom(get => {
     return loginId?.length > 0 && loginLevel === "관리자";
 })
 
-//상담사인지 판정
+//상담사인지 판정 
 export const counselorState = atom(get=>{
     const loginId = get(loginIdState);
     const loginLevel = get(loginLevelState);
