@@ -26,6 +26,9 @@ import Main from "./templates/Main";
 // 고객센터 화면
 import CounselorDashboard from "./dashboard/CounselorDashboard";
 import Unauthorized from "./error/Unauthorized";
+import AccountFindId from "./account/AccountFindId";
+import AccountFindPw from "./account/AccountFindPw";
+import AccountJoinFinish from "./account/accountJoin/AccountJoinFinish";
 
 
 
@@ -46,6 +49,9 @@ export default function Content() {
                     {/* 회원 관련 페이지 */}
                     <Route path="/account/join" element={<AccountJoin />}></Route>
                     <Route path="/account/login" element={<AccountLogin />}></Route>
+                    <Route path="/account/findId" element={<AccountFindId/>}></Route>
+                    <Route path="/account/findPw" element={<AccountFindPw/>}></Route>
+                    <Route path="/account/joinFinish" element={<AccountJoinFinish/>}></Route>
 
                     <Route path="kakaotest" element={<KakaoMapTest />}></Route>
 
