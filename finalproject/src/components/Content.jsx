@@ -25,6 +25,7 @@ import Main from "./templates/Main";
 
 // 고객센터 화면
 import CounselorDashboard from "./dashboard/CounselorDashboard";
+import Unauthorized from "./error/Unauthorized";
 
 
 
@@ -74,6 +75,9 @@ export default function Content() {
                     <Route path="/schedule" element={<Schedule />} />
 
                     <Route path="/" element={<Main />} />
+                      
+                    {/* 에러 페이지 */}
+                    <Route path="/unauthorized" element={<Unauthorized/>}></Route>
                 </Routes>
             </div>
         </div>
