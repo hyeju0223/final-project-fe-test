@@ -14,9 +14,19 @@ import AccountPayDetail from "./account/AccountPayDetail";
 import AccountJoin from "./account/accountJoin/AccountJoin";
 import AccountLogin from "./account/accountLogin";
 
+{/* 일정 관련 */ }
+import ScheduleData from "./schedule/ScheduleData";
+import Schedule from "./schedule/Schedule";
+import ScheduleList from "./schedule/ScheduleList";
+import SchedulePage from "./schedule/SchedulePage";
+import ScheduleSearch from "./schedule/ScheduleSearch";
+import Main from "./templates/Main";
+
+
 // 고객센터 화면
 import CounselorDashboard from "./dashboard/CounselorDashboard";
 import Unauthorized from "./error/Unauthorized";
+
 
 
 
@@ -34,8 +44,8 @@ export default function Content() {
                     <Route path="/counselor/dashboard" element={<CounselorDashboard />} />
 
                     {/* 회원 관련 페이지 */}
-                    <Route path="/account/join" element={<AccountJoin/>}></Route>
-                    <Route path="/account/login" element={<AccountLogin/>}></Route>
+                    <Route path="/account/join" element={<AccountJoin />}></Route>
+                    <Route path="/account/login" element={<AccountLogin />}></Route>
 
                     <Route path="kakaotest" element={<KakaoMapTest />}></Route>
 
@@ -52,7 +62,20 @@ export default function Content() {
                     <Route path="/kakaopay/pay/detail/:paymentNo" element={<AccountPayDetail />}></Route>
                     {/* 카카오페이 결제 내역 */}
 
+                    {/* 일정 관련 */}
+                    <Route path="/scheduleList" element={<ScheduleList />} />
 
+                    <Route path="/schedulePage/:scheduleNo" element={<SchedulePage />} >
+                        <Route index element={<ScheduleData />} />
+                        <Route path="data" element={<ScheduleData />} />
+                        <Route path="shearch" element={<ScheduleSearch />} />
+                    </Route>
+
+
+                    <Route path="/schedule" element={<Schedule />} />
+
+                    <Route path="/" element={<Main />} />
+                      
                     {/* 에러 페이지 */}
                     <Route path="/unauthorized" element={<Unauthorized/>}></Route>
                 </Routes>
