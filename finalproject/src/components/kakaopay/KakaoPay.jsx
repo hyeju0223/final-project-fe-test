@@ -143,7 +143,7 @@ export default function KakaoPay() {
                                     </th>
                                     <th>이름</th>
                                     <th>금액</th>
-                                    <th>포인트</th>
+                                    <th>증가량</th>
                                     <th width="100">수량</th>
                                 </tr>
                             </thead>
@@ -161,7 +161,7 @@ export default function KakaoPay() {
                                             {numberWithComma(shop.shopPrice)}원
                                         </td>
                                         <td className="checkbox-cell">
-                                            {numberWithComma(shop.shopPoint)}포인트
+                                            {numberWithComma(shop.shopValue)}회
                                         </td>
                                         <td className="checkbox-cell">
                                             <input type="number" inputMode="numeric"
