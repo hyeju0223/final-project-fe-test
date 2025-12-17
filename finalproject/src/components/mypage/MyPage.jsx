@@ -40,6 +40,7 @@ export default function MyPage() {
         letterSpacing: "-0.3px"
     };
 
+
     return (
         <div className="container-fluid p-0" style={{ minHeight: "100vh", backgroundColor: "#f8f9fa" }}>
             <div className="row g-0 h-100">

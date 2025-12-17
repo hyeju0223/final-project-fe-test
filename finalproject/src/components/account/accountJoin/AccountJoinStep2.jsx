@@ -155,11 +155,29 @@ const AccountJoinStep2 = ({ verifiedPhone }) => {
     // 최종 가입
     const sendData = useCallback(async () => {
         // 프로필 이미지를 위한 formData
-        console.log(file);
+        const formData = new FormData();
+        // 텍스트 데이터 모두 담아야 함
+        formData.append("accountId", account.accountId);
+        formData.append("accountPw", account.accountPw);
+        formData.append("accountNickname", account.accountNickname);
+        formData.append("accountContact", account.accountContact);
+        formData.append("accountEmail", account.accountEmail);
+        formData.append("accountGender", account.accountGender);
+        formData.append("accountBirth", account.accountBirth);
+
+        // FormData 내부 값 확인하는 방법
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+    }
+
+        if (file) {// 파일이 있으면 전송 목록에 추가
+            formData.append("attach", file);
+        }
+        
 
         if (accountValid === false) return;
         try {
-            await axios.post("http://localhost:8080/account/join", {accountDto: account, attach: file});
+            await axios.post("http://localhost:8080/account/join", formData);
             navigate("/account/joinFinish");
         } catch (e) {
             if (e.response && e.response.status === 409) {
