@@ -6,6 +6,7 @@ import Jumbotron from "../templates/Jumbotron";
 import "../kakaopay/KakaoPay.css";
 import "./AccountPay.css";
 import { numberWithComma } from "../../utils/format";
+import { formatDateTime } from "../../utils/dateFormat";
 import { useAtom, useAtomValue } from "jotai";
 import { accessTokenState, loginCompleteState } from "../../utils/jotai";
 
@@ -36,6 +37,20 @@ export default function AccountPayInformation() {
         return "결제 부분 취소";
     }, []);
 
+    const checkPaymentRefund = useCallback((paymentTime) => {
+        const base = new Date(paymentTime).getTime();
+        const after3Days = base + 3 * 24 * 60 * 60 * 1000;
+
+        return Date.now() >= after3Days;
+    }, []);
+
+    const statusTextColor = useCallback((payment) => {
+        const { paymentTotal, paymentRemain } = payment;
+        if (paymentTotal === paymentRemain) return "info";
+        if (paymentRemain === 0) return "danger";
+        return "dark";
+    }, []);
+
     return (<>
 
 
@@ -43,10 +58,19 @@ export default function AccountPayInformation() {
             className="fade-jumbotron"
             style={{ animationDelay: `${0.03}s` }}
         >
-            <Jumbotron subject="내 카카오페이 결제 내역" detail="카카오페이 결제 내역을 알아봅시다."></Jumbotron>
+            {/* <Jumbotron subject="내 카카오페이 결제 내역" detail="카카오페이 결제 내역을 알아봅시다."></Jumbotron> */}
+
+            <div className="row">
+                <div className="col">
+                    <h3 className="text-center">카카오페이 결제내역 조회</h3>
+                    <p className="text-center text-desc">
+                        카카오페이에서 결제내역을 알아봅시다.
+                    </p>
+                </div>
+            </div>
         </div>
 
-        <div
+        {/* <div
             className="fade-link"
             style={{ animationDelay: `${0.03}s` }}
         >
@@ -58,32 +82,84 @@ export default function AccountPayInformation() {
                     <Link to="/" className="none-decortion">홈</Link>
                 </div>
             </div>
-        </div>
+        </div> */}
 
 
-        <hr />
-        {paymentList.map((payment, i) => (
-            <div
-                key={i}
-                className="fade-item"
-                style={{ animationDelay: `${i * 0.03}s` }}
-            >
-                <div className="row mb-4" key={payment.paymentNo}>
-                    <div className="col">
-                        <div className="p-4 shadow rounded">
-                            <h2>{payment.paymentName}</h2>
-                            <div>거래금액 : 총 {numberWithComma(payment.paymentTotal)}원</div>
-                            <div>거래번호 : {payment.paymentTid}</div>
-                            <div>거래일시 : {payment.paymentTime}</div>
-                            <div>상태 : {calculateStatus(payment)}</div>
-                            <div className="mt-2 text-end">
-                                <Link to={`/kakaopay/pay/detail/${payment.paymentNo}`} className="btn btn-outline-info">자세히 보기 <FaArrowRight /></Link>
-                                {/* /kakaopay/pay/detail */}
-                            </div>
-                        </div>
+        <hr className="mt-5" />
+
+        <div
+            className="fade-item"
+            style={{ animationDelay: `${0.03}s` }}
+        >
+            <div className="d-flex align-items-center">
+                {paymentList === null ? (
+
+                    <div className="fw-bold" style={{ width: 220 }}>
+                        결제 내역 조회 Loading...
                     </div>
-                </div>
+
+                ) : (
+
+                    <>
+                        <div className="d-flex flex-column w-100">
+                            {paymentList.map((payment, i) => (
+
+                                <div
+                                    key={i}
+                                    className="fade-item w-100 mb-1"
+                                    style={{ animationDelay: `${i * 0.03}s` }}
+                                >
+                                    <div className="p-4 shadow rounded d-flex align-items-start w-100">
+
+                                        {/* 상품명 영역 */}
+                                        <div className="fw-bold me-3" style={{ width: 220 }}>
+                                            {payment.paymentName}
+                                        </div>
+
+                                        {/* 중간 정보 + 버튼을 가로로 묶는 핵심 영역 */}
+                                        <div className="d-flex align-items-center flex-grow-1">
+
+                                            {/* 텍스트 3줄 영역 (가로폭 크게) */}
+                                            <div className="d-flex flex-column gap-1 text-smallSize flex-grow-1">
+                                                <div className="row">
+                                                    <div className="col-sm-4 text-primary">거래금액</div>
+                                                    <div className="col-sm-8 text-secondary">총 {numberWithComma(payment.paymentTotal)}원</div>
+                                                </div>
+                                                <div className="row">
+                                                    <div className="col-sm-4 text-primary">거래번호</div>
+                                                    <div className="col-sm-8 text-secondary">{payment.paymentTid}</div>
+                                                </div>
+                                                <div className="row">
+                                                    <div className="col-sm-4 text-primary">거래일시</div>
+                                                    <div className="col-sm-8 text-secondary">{formatDateTime(payment.paymentTime)}</div>
+                                                </div>
+                                                <div className="row">
+                                                    <div className="col-sm-4 text-primary">상태</div>
+                                                    <div className={`col-sm-8 text-${statusTextColor(payment)}`}>{calculateStatus(payment)}</div>
+                                                </div>
+                                            </div>
+
+                                            {/* 환불 버튼 – 오른쪽 벽 고정 */}
+                                            <div className="ms-auto d-flex justify-content-end" style={{ width: 250 }}>
+                                                <Link
+                                                    to={`/kakaopay/pay/detail/${payment.paymentNo}`}
+                                                    state={{ isRefund: !checkPaymentRefund(payment.paymentTime) }}
+                                                    className="btn btn-outline-info"
+                                                    style={{ fontSize: "0.8em" }}
+                                                >
+                                                    자세히 보기 <FaArrowRight />
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            ))}
+                        </div>
+                    </>
+
+                )}
             </div>
-        ))}
+        </div>
     </>)
 }

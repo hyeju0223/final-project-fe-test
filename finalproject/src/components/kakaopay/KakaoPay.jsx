@@ -3,8 +3,12 @@ import "./KakaoPay.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { numberWithComma } from "../../utils/format";
+import { useAtomValue } from "jotai";
+import { loginCompleteState } from "../../utils/jotai";
 
 export default function KakaoPay() {
+
+    const loginComplete = useAtomValue(loginCompleteState);
 
     /* =======================
        화면 크기 감지
@@ -26,8 +30,10 @@ export default function KakaoPay() {
     const [checkAll, setCheckAll] = useState(false);
 
     useEffect(() => {
-        loadData();
-    }, []);
+        if (loginComplete) {
+            loadData();
+        }
+    }, [loginComplete]);
 
     const loadData = useCallback(async () => {
         const { data } = await axios.get("/shop/");
@@ -111,16 +117,21 @@ export default function KakaoPay() {
     ======================= */
     return (
         <>
-            <div className="row mt-4">
-                <div className="col">
-                    <h3 className="text-center">일정 최대 개수 증가를 구매하세요</h3>
-                    <p className="text-center text-desc">
-                        일정 최대 개수를 증가시켜서 더욱 쾌적하게 즐기세요.
-                    </p>
+            <div
+                className="fade-jumbotron"
+                style={{ animationDelay: `${0.03}s` }}
+            >
+                <div className="row">
+                    <div className="col">
+                        <h3 className="text-center">일정 최대 개수 증가를 구매하세요</h3>
+                        <p className="text-center text-desc">
+                            일정 최대 개수를 증가시켜서 더욱 쾌적하게 즐기세요.
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <div className="row mt-4">
+            <div className="row mt-5">
                 <div className="col">
                     {isMobile ? (
                         /* =======================
