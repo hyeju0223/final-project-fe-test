@@ -72,3 +72,8 @@
 .text-desc {
   color: #898787;
 }
+
+.text-smallSize
+{
+ font-size: 0.8em;
+}

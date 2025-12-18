@@ -44,6 +44,13 @@ export default function AccountPayInformation() {
         return Date.now() >= after3Days;
     }, []);
 
+    const statusTextColor = useCallback((payment) => {
+        const { paymentTotal, paymentRemain } = payment;
+        if (paymentTotal === paymentRemain) return "info";
+        if (paymentRemain === 0) return "danger";
+        return "dark";
+    }, []);
+
     return (<>
 
 
@@ -86,21 +93,35 @@ export default function AccountPayInformation() {
                 className="fade-item"
                 style={{ animationDelay: `${i * 0.03}s` }}
             >
-                <div className="row mb-4" key={payment.paymentNo}>
-                    <div className="col">
-                        <div className="p-4 shadow rounded">
-                            <h2>{payment.paymentName}</h2>
-                            <div>거래금액 : 총 {numberWithComma(payment.paymentTotal)}원</div>
-                            <div>거래번호 : {payment.paymentTid}</div>
-                            <div>거래일시 : {formatDateTime(payment.paymentTime)}</div>
-                            <div>상태 : {calculateStatus(payment)}</div>
-                            <div className="mt-2 text-end">
-                                <Link to={`/kakaopay/pay/detail/${payment.paymentNo}`} state={{ isRefund: checkPaymentRefund(payment.paymentTime) }} className="btn btn-outline-info">자세히 보기 <FaArrowRight /></Link>
-                                {/* /kakaopay/pay/detail */}
-                            </div>
-                        </div>
+                <div className="p-4 shadow rounded d-flex align-items-center">
+
+                    {/* 왼쪽 제목 (고정 폭) */}
+                    <div className="fw-bold" style={{ width: 220 }}>
+                        {payment.paymentName}
                     </div>
+
+                    {/* 가운데 4줄 (왼쪽으로 밀착) */}
+                    <div className="d-flex flex-column gap-1 text-smallSize ms-3">
+                        <div>거래금액 : 총 {numberWithComma(payment.paymentTotal)}원</div>
+                        <div>거래번호 : {payment.paymentTid}</div>
+                        <div>거래일시 : {formatDateTime(payment.paymentTime)}</div>
+                        <div className={`text-${statusTextColor(payment)}`}>상태 : {calculateStatus(payment)}</div>
+                    </div>
+
+                    {/* 오른쪽 버튼 (끝으로 밀기) */}
+                    <div className="ms-auto">
+                        <Link
+                            to={`/kakaopay/pay/detail/${payment.paymentNo}`}
+                            state={{ isRefund: !checkPaymentRefund(payment.paymentTime) }}
+                            className="btn btn-outline-info"
+                            style={{ fontSize: "0.8em" }}
+                        >
+                            자세히 보기 <FaArrowRight />
+                        </Link>
+                    </div>
+
                 </div>
+
             </div>
         ))}
     </>)
