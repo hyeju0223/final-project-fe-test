@@ -87,54 +87,79 @@ export default function AccountPayInformation() {
 
         <hr className="mt-5" />
 
-        {paymentList.map((payment, i) => (
-            <div
-                key={i}
-                className="fade-item"
-                style={{ animationDelay: `${i * 0.03}s` }}
-            >
-                <div className="p-4 shadow rounded d-flex align-items-center">
+        <div
+            className="fade-item"
+            style={{ animationDelay: `${0.03}s` }}
+        >
+            <div className="d-flex align-items-center">
+                {paymentList === null ? (
 
-                    {/* 왼쪽 제목 (고정 폭) */}
                     <div className="fw-bold" style={{ width: 220 }}>
-                        {payment.paymentName}
+                        결제 내역 조회 Loading...
                     </div>
 
-                    {/* 가운데 4줄 (왼쪽으로 밀착) */}
-                    <div className="d-flex flex-column gap-1 text-smallSize ms-3">
-                        <div className="row">
-                            <div className="col-sm-4 text-primary">거래금액</div>
-                            <div className="col-sm-8 text-secondary">총 {numberWithComma(payment.paymentTotal)}원</div>
-                        </div>
-                        <div className="row">
-                            <div className="col-sm-4 text-primary">거래번호</div>
-                            <div className="col-sm-8 text-secondary">{payment.paymentTid}</div>
-                        </div>
-                        <div className="row">
-                            <div className="col-sm-4 text-primary">거래일시</div>
-                            <div className="col-sm-8 text-secondary">{formatDateTime(payment.paymentTime)}</div>
-                        </div>
-                        <div className="row">
-                            <div className="col-sm-4 text-primary">상태</div>
-                            <div className={`col-sm-8 text-${statusTextColor(payment)}`}>{calculateStatus(payment)}</div>
-                        </div>
-                    </div>
+                ) : (
 
-                    {/* 오른쪽 버튼 (끝으로 밀기) */}
-                    <div className="ms-auto">
-                        <Link
-                            to={`/kakaopay/pay/detail/${payment.paymentNo}`}
-                            state={{ isRefund: !checkPaymentRefund(payment.paymentTime) }}
-                            className="btn btn-outline-info"
-                            style={{ fontSize: "0.8em" }}
-                        >
-                            자세히 보기 <FaArrowRight />
-                        </Link>
-                    </div>
+                    <>
+                        <div className="d-flex flex-column w-100">
+                            {paymentList.map((payment, i) => (
 
-                </div>
+                                <div
+                                    key={i}
+                                    className="fade-item w-100 mb-1"
+                                    style={{ animationDelay: `${i * 0.03}s` }}
+                                >
+                                    <div className="p-4 shadow rounded d-flex align-items-start w-100">
 
+                                        {/* 상품명 영역 */}
+                                        <div className="fw-bold me-3" style={{ width: 220 }}>
+                                            {payment.paymentName}
+                                        </div>
+
+                                        {/* 중간 정보 + 버튼을 가로로 묶는 핵심 영역 */}
+                                        <div className="d-flex align-items-center flex-grow-1">
+
+                                            {/* 텍스트 3줄 영역 (가로폭 크게) */}
+                                            <div className="d-flex flex-column gap-1 text-smallSize flex-grow-1">
+                                                <div className="row">
+                                                    <div className="col-sm-4 text-primary">거래금액</div>
+                                                    <div className="col-sm-8 text-secondary">총 {numberWithComma(payment.paymentTotal)}원</div>
+                                                </div>
+                                                <div className="row">
+                                                    <div className="col-sm-4 text-primary">거래번호</div>
+                                                    <div className="col-sm-8 text-secondary">{payment.paymentTid}</div>
+                                                </div>
+                                                <div className="row">
+                                                    <div className="col-sm-4 text-primary">거래일시</div>
+                                                    <div className="col-sm-8 text-secondary">{formatDateTime(payment.paymentTime)}</div>
+                                                </div>
+                                                <div className="row">
+                                                    <div className="col-sm-4 text-primary">상태</div>
+                                                    <div className={`col-sm-8 text-${statusTextColor(payment)}`}>{calculateStatus(payment)}</div>
+                                                </div>
+                                            </div>
+
+                                            {/* 환불 버튼 – 오른쪽 벽 고정 */}
+                                            <div className="ms-auto d-flex justify-content-end" style={{ width: 250 }}>
+                                                <Link
+                                                    to={`/kakaopay/pay/detail/${payment.paymentNo}`}
+                                                    state={{ isRefund: !checkPaymentRefund(payment.paymentTime) }}
+                                                    className="btn btn-outline-info"
+                                                    style={{ fontSize: "0.8em" }}
+                                                >
+                                                    자세히 보기 <FaArrowRight />
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            ))}
+                        </div>
+                    </>
+
+                )}
             </div>
-        ))}
+        </div>
     </>)
 }
