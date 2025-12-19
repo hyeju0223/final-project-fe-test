@@ -12,7 +12,7 @@ import AccountPayDetail from "./account/AccountPayDetail";
 {/* 카카오페이 결제 내역 */ }
 {/* 회원 관련 */ }
 import AccountJoin from "./account/accountJoin/AccountJoin";
-import AccountLogin from "./account/accountLogin";
+import AccountLogin from "./account/AccountLogin";
 import AccountJoinFinish from "./account/accountJoin/AccountJoinFinish";
 import AccountFindId from "./account/accountFind/AccountFindId";
 import AccountFindPw from "./account/accountFind/AccountFindPw";
@@ -25,10 +25,6 @@ import ScheduleSearch from "./schedule/ScheduleSearch";
 import Main from "./templates/Main";
 
 {/* 마이페이지 */ }
-
-// 고객센터 화면
-import CounselorDashboard from "./dashboard/CounselorDashboard";
-import Unauthorized from "./error/Unauthorized";
 import MyPage from "./mypage/mypage";
 import MyInformation from "./mypage/MyInformation";
 import MyPayment from "./mypage/MyPayment";
@@ -36,11 +32,19 @@ import MySchedule from "./mypage/MySchedule";
 import MyWishList from "./mypage/MyWishList";
 import { ShareGate } from "./schedule/ShareGate";
 
+// 고객센터 화면
+import CounselorDashboard from "./dashboard/CounselorDashboard";
+import Unauthorized from "./error/Unauthorized";
 
+{/* 관리자*/ }
+import AdminHome from "./admin/AdminHome";
 
+import AccountManager from "./admin/account/AccountManeger";
+import AccountSearch from "./admin/account/AccountSearch";
+import AccountDashboard from "./admin/account/AccountDashboard";
 
-
-
+import Private from "./guard/Private";
+import Admin from "./guard/Admin";
 
 export default function Content() {
     return (<>
@@ -61,7 +65,13 @@ export default function Content() {
                     <Route path="/account/findPw" element={<AccountFindPw />}></Route>
                     <Route path="/account/joinFinish" element={<AccountJoinFinish />}></Route>
 
-
+                    {/* 관리자 페이지 */}
+                     <Route path="/admin" element={<Admin><AdminHome/></Admin>}>
+                        <Route path="/admin/accounts" element={<Admin><AccountManager/></Admin>}>
+                            <Route path="/admin/accounts/search" element={<Admin><AccountSearch/></Admin>}></Route>
+                            <Route path="/admin/accounts/dashboard" element={<Admin><AccountDashboard/></Admin>}></Route>
+                        </Route>
+                    </Route>
 
                     {/* 카카오페이 관련 */}
                     <Route path="/kakaopay/buy" element={<KakaoPay />}></Route>

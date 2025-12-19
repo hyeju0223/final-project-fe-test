@@ -1,7 +1,7 @@
 
 .map-area{
     position: relative;
-    height: 800px;
+    height: 100%;
     background-color: lightblue;
 }
 
@@ -29,7 +29,7 @@
   position: absolute;
   top: 10px;
   left: 10px;
-  width: 260px;
+  width: 340px;
   background: white;
   border-radius: 10px;
   padding: 10px;
@@ -162,3 +162,27 @@ border: 2px solid #dee2e6;
   }
 }
 
+
+
+/* 제미나이가 만들어준 임시 CSS */
+/* Schedule.css 등에 추가 */
+.day-group {
+    position: relative;
+}
+
+.marker-list-inner {
+    /* 마커들을 살짝 들여쓰기하여 구분선과 정렬 */
+    padding-left: 10px;
+}
+
+.day-divider {
+    position: sticky; /* 스크롤 시 날짜 고정을 원하면 사용 */
+    top: 0;
+    z-index: 10;
+    background: white;
+}
+
+.all-schedule-container, .search-results {
+  height: 750px;
+  overflow: scroll;
+}
