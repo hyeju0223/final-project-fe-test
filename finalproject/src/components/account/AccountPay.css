@@ -86,3 +86,8 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+body {
+    /* 폭이 좁은 경우 스크롤을 100%로 유지하려는 특성을 제거하기 위한 디자인 */
+    overflow-anchor: none;
+}
