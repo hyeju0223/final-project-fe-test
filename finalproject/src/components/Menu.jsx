@@ -89,13 +89,10 @@ export default function Menu() {
     tagData();
   }, [modal])
 
-
   const closeModal = useCallback(() => {
     const instance = Modal.getInstance(modal.current);
     instance.hide();
   }, [modal])
-
-
 
   const tagData = useCallback(async () => {
     const { data } = await axios.get("http://localhost:8080/schedule/tagList");
@@ -125,7 +122,6 @@ export default function Menu() {
 
     try {
           const { data } = await axios.post("http://localhost:8080/schedule/insert",
-            
       {
         scheduleName : scheduleName,
         scheduleOwner : "testuser1",
@@ -141,18 +137,12 @@ export default function Menu() {
 
     } catch (error) {
       toast.error("일정 등록이 실패되었습니다.");
-
-
     }
 
   }, [scheduleName, startDate]);
 
-
-
   // 카테고리 목록 만들기
   const categories = Array.from(new Set(tags.map(t => t.tagCategory)));
-
-
 
   return (
     <>

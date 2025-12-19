@@ -18,9 +18,21 @@ export default function SchedulePage() {
 
   const { scheduleNo } = useParams();
 
-  const copyUrl = useCallback(() => {
-    navigator.clipboard.writeText(window.location.href)
-      .then(() => { toast.success("링크 복사 완료") });
+  const copyUrl = useCallback(async () => {
+
+    try {
+
+          const {data} = await axios.get(`/schedule/share/${scheduleNo}`);
+          console.log("shareKey",data);
+
+          const url = `${window.location.origin}/share/${data}`;
+          await navigator.clipboard.writeText(url);
+          
+          toast.success("링크 복사 완료")
+    } catch (error) {
+      
+    }
+
   }, []);
 
   useEffect(()=>{
