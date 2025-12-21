@@ -123,7 +123,7 @@ const AccountJoinStep1 = ({ onNext }) => {
     };
 
     return (
-        <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
+        <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
             <div className="card border-0 shadow-lg" style={{ width: "100%", maxWidth: "480px", borderRadius: "20px", overflow: "hidden" }}>
                 
                 {/* 상단 디자인 라인 */}

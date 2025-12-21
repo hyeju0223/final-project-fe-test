@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { accessTokenState, adminState, clearLoginState, loginCompleteState, loginIdState, loginLevelState, loginState } from "../utils/jotai";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
@@ -10,6 +10,8 @@ import ScheduleModal from "./schedule/ScheduleModal";
 export default function Menu() {
   // 이동 도구
   const navigate = useNavigate();
+  const location = useLocation();
+
 
   // jotai state
   const [loginId, setloginId] = useAtom(loginIdState);
@@ -190,10 +192,10 @@ export default function Menu() {
           {/* Brand Logo */}
           <Link className="navbar-brand" to="/" style={styles.brand}>
             {/* [수정] 로고 이미지 추가 (기존 아이콘 대체) */}
-            <img 
-              src="/images/logo.png" 
-              alt="Logo" 
-              style={{ height: "50px", marginRight: "5px", marginTop:"5px", objectFit: "contain" }} 
+            <img
+              src="/images/logo.png"
+              alt="Logo"
+              style={{ height: "50px", marginRight: "5px", marginTop: "5px", objectFit: "contain" }}
               onError={(e) => e.target.style.display = 'none'} // 이미지 없으면 숨김
             />
             TripPlanner
@@ -335,7 +337,7 @@ export default function Menu() {
         isOpen={isScheduleModalOpen}
         onClose={closeModal}
       />
-      <TermsModal isOpen={isAgreementModalOpen} onClose={closeModal}/>
+      <TermsModal isOpen={isAgreementModalOpen} onClose={closeModal} />
     </>
   );
 }
