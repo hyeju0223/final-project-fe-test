@@ -150,8 +150,6 @@ export default function SchedulePage() {
         }));
     };
 
-
-
     const addMarker = useCallback(async (latlng) => {
         const id = uuidv4();
         const address = {
