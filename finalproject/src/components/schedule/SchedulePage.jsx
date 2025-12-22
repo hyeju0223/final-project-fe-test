@@ -10,14 +10,16 @@ import axios from "axios";
 import KakaoLoader from "../kakaomap/useKakaoLoader";
 import { Map, MapMarker, Polyline } from "react-kakao-maps-sdk";
 import { v4 as uuidv4 } from "uuid";
-import { guestState, loginIdState } from "../../utils/jotai";
+import { accessTokenState, guestState, loginIdState } from "../../utils/jotai";
 import Swal from "sweetalert2";
+import MemberReview from "./MemberReview";
+import Review from "./Review";
 
 
 
 export default function SchedulePage() {
     KakaoLoader()
-
+    const accessToken = useAtomValue(accessTokenState);
     const guest = useAtomValue(guestState);
     const loginId = useAtomValue(loginIdState);
 
@@ -53,7 +55,6 @@ export default function SchedulePage() {
         DISTANCE: false
     })
     const [selectedSearch, setSelectedSearch] = useState("CAR")
-
     const copyUrl = useCallback(async () => {
 
         try {
@@ -111,6 +112,7 @@ export default function SchedulePage() {
     })
     const isOwner = !isLoading && scheduleDto.scheduleOwner === loginId;
 
+
     useEffect(() => {
         console.log("SchedulePage params scheduleNo =", scheduleNo);
     }, [scheduleNo]);
@@ -160,6 +162,7 @@ export default function SchedulePage() {
             }
         ]))
     }, [])
+
 
     const addDays = useCallback(() => {
         if (!isOwner) return;
@@ -595,10 +598,24 @@ export default function SchedulePage() {
         setMemberList(data);
     }, [scheduleNo]);
 
+    //일정 시작 시간에 따른 상태를 바꾸기 위한 콜백
+    const refreshScheduleState = useCallback(async () => {
+        if (!scheduleNo) return;
+        const { data } = await axios.patch(`/schedule/${scheduleNo}/state`);
+        // data 예: { scheduleNo, scheduleState, scheduleStartDate, scheduleEndDate }
+        setScheduleDto(prev => ({
+            ...prev,
+            scheduleState: data.scheduleState,
+        }));
+    }, [scheduleNo]);
+
+    //시작할 때 진행되는 이팩트
     useEffect(() => {
         loadMember();
+        refreshScheduleState().catch(console.log);
 
-    }, [loadMember]);
+
+    }, [loadMember, refreshScheduleState]);
 
     // 링크를 타고 들어온 회원 멤버 리스트에 추가
     useEffect(() => {
@@ -720,6 +737,53 @@ export default function SchedulePage() {
             showConfirmButton: false,
         });
     };
+
+    const [reviews, setReviews] = useState([]);
+
+    const loadReviews = useCallback(async () => {
+        const { data } = await axios.get(`/review/list/${scheduleNo}`);
+        setReviews(data);
+            console.log("댓글데이터확인",data);
+
+    }, [scheduleNo]);
+
+    const deleteReview = async (reviewNo) => {
+  await axios.delete(`/review/${reviewNo}`);
+  await loadReviews(); 
+};
+
+    useEffect(() => { loadReviews(); }, [loadReviews]);
+
+    const comments = reviews.filter(r => r.reviewType === "댓글");
+    const memberReviews = reviews.filter(r => r.reviewType === "멤버후기");
+    const publicReviews = reviews.filter(r => r.reviewType === "후기");
+
+
+    const handleSubmit = async (payload) => {
+        await axios.post(
+            "/review/insert",
+            {
+                scheduleNo: Number(scheduleNo),
+                reviewContent: payload.reviewContent,
+                reviewType: "멤버후기",
+                scheduleUnitList: []
+            },
+            { headers: { Authorization: `Bearer ${accessToken}` } }
+        );
+
+        await loadReviews();
+    };
+
+    const canTogglePublic = scheduleDto.scheduleState === "종료";
+    console.log("scheduleDto", scheduleDto);
+
+    const isBeforeOrOngoing =
+        scheduleDto.scheduleState === "약속전" ||
+        scheduleDto.scheduleState === "진행중";
+
+    const isEnded = scheduleDto.scheduleState === "종료";
+    const isPublic = !!scheduleDto.schedulePublic;
+
     if (isLoading) {
         return <div className="text-center py-5">일정 데이터를 불러오는 중입니다...</div>;
     }
@@ -736,12 +800,18 @@ export default function SchedulePage() {
                         <div className="panel-card h-100">
 
                             {/* 상단 액션/정보 바 */}
+
                             {isOwner && (
                                 <div className="panel-topbar">
+                                    {!canTogglePublic && (
+                                        <div className="text-muted small mt-1">
+                                            약속 종료 후 공개 전환 가능
+                                        </div>
+                                    )}
                                     <button
                                         type="button"
                                         className={`btn ${scheduleDto.schedulePublic ? "btn-success" : "btn-outline-secondary"} btn-sm`}
-                                        onClick={toggleSchedulePublicWithSwal}
+                                        onClick={toggleSchedulePublicWithSwal} disabled={!canTogglePublic}
 
                                     >
                                         {scheduleDto.schedulePublic ? "공개" : "비공개"}
@@ -790,7 +860,9 @@ export default function SchedulePage() {
                                 className="map-info"
                                 center={center}
                                 level={3}
+
                                 onClick={(_, mouseEvent) => isOwner && addMarker(mouseEvent.latLng)}
+
                             >
                                 {markerElements()}
                                 {tempMarkerElements()}
@@ -805,7 +877,30 @@ export default function SchedulePage() {
                 <div className="row mt-3">
                     <div className="col-12">
                         <div className="reply-card-wrap">
-                            <Reply />
+
+                            {isBeforeOrOngoing && (
+                                <Reply
+                                    reviews={comments}
+                                    memberList={memberList}
+                                     onDelete={deleteReview}
+                                />
+                            )}
+
+                            {isEnded && (
+                                isPublic ? (
+                                     <Review reviews={publicReviews}  onDelete={deleteReview} 
+                                     loadReviews={loadReviews}/>          // 공개후기
+                                ) : (
+                                    <MemberReview       // 멤버후기
+                                        reviews={memberReviews}
+                                        canWrite={true}
+                                        isGuest={guest}
+                                         onDelete={deleteReview}
+                                        onSubmit={handleSubmit}
+                                    />
+                                )
+                            )}
+
                         </div>
                     </div>
                 </div>

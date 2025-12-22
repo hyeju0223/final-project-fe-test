@@ -10,10 +10,10 @@ import { accessTokenState, guestKeyState, guestState, loginIdState, loginLevelSt
 import { guestNicknameState } from "../../../../test-kakaopay/src/utils/jotai";
 
 
-export default function Reply() {
+export default function Reply({  reviews = [], memberList = [], loadReviews}) {
 
     const [input, setInput] = useState("");
-    const [replyList, setReplyList] = useState([]);
+    // const [replyList, setReplyList] = useState([]);
     const [accountName, setAccountName] = useState("");
     const [time, setTime] = useState(null);
     const [scheduleUnitNo, setScheduleUnitNo] = useState("");
@@ -29,7 +29,13 @@ export default function Reply() {
     const loginLevel = useAtomValue(loginLevelState);
     const guestNickname = useAtomValue(guestNicknameState);
     const isGuest = useAtomValue(guestState);
-
+const isMember = memberList?.some(
+  (m) => String(m.accountId ?? "").trim() === String(loginId ?? "").trim()
+);   
+console.log("loginId =", loginId, typeof loginId);
+console.log("memberList ids =", memberList?.map(m => m.accountId));
+console.log("isMember =", memberList?.some(m => String(m.accountId).trim() === String(loginId).trim()));
+console.log("리스트확인",memberList);
     const [profileUrl, setProfileUrl] = useState("/images/default-profile.jpg");
 
     const cleanData = useCallback(() => {
@@ -44,15 +50,15 @@ export default function Reply() {
 
         try {
             // 1) 댓글 리스트
-            const { data } = await axios.get(`/review/list/${scheduleNo}`);
-            console.log("댓글데이터확인=", data);
-            setReplyList(data);
+            // const { data } = await axios.get(`/review/list/${scheduleNo}`);
+            // console.log("댓글데이터확인=", data);
+            // setReplyList(data);
 
             // 2) 대표 일정의 세부일정 리스트(객체 리스트)
             const { data: unitData } = await axios.get(`/review/unit/list/${scheduleNo}`);
             console.log("대표일정 세부일정확인=", unitData);
             setShowUnitList(unitData);
-
+            loadReviews();
         } catch (error) {
             console.log(error);
         }
@@ -77,6 +83,7 @@ export default function Reply() {
                 {
                     scheduleNo: Number(scheduleNo),
                     scheduleUnitList: scheduleUnitList,
+                    reviewType: "댓글",
                     reviewContent: input,
                 },
                 {
@@ -96,7 +103,7 @@ export default function Reply() {
             toast.error("댓글 등록 실패");
         }
 
-    }, [scheduleNo, scheduleUnitList, input, replyList])
+    }, [scheduleNo, scheduleUnitList, input])
 
     const deleteScheduleUnitNo = useCallback(async (reviewNo, scheduleUnitNo) => {
         try {
@@ -183,14 +190,14 @@ export default function Reply() {
                     {/* 헤더 */}
                     <div className="reply-topbar-v3">
                         <div className="reply-title-v3">댓글</div>
-                        <div className="reply-count-v3">{replyList.length}개</div>
+                        <div className="reply-count-v3">{reviews.length}개</div>
                     </div>
 
                     <div className="reply-divider-v3" />
 
                     {/* 리스트 */}
                     <div className="reply-list-v3">
-                        {replyList.map((reply, index) => (
+                        {reviews.map((reply, index) => (
                             <div className="reply-card-v3" key={reply.reviewNo}>
                                 {/* 카드 헤더: 프로필/닉네임/시간 + 액션 */}
                                 <div className="reply-card-head-v3">
@@ -341,10 +348,17 @@ export default function Reply() {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                         />
-                        <button type="button" className="reply-btn-v3 primary" onClick={sendData}>
+                        <button type="button" className="reply-btn-v3 primary" onClick={sendData} disabled={!isMember  || !input.trim()}>
                             등록
                         </button>
                     </div>
+                    {!isMember  && (
+                        <div className="text-muted small mt-2">
+                            {isGuest
+                                ? "댓글 작성은 로그인 후 가능합니다."
+                                : "참여자(멤버)만 댓글을 작성할 수 있어요."}
+                        </div>
+                    )}
                 </div>
             </div>
         </>
