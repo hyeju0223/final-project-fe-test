@@ -2,9 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 /*
-    [커스텀 훅] 데이터 더보기 기능 (프론트엔드 페이징 버전)
-    - url: 데이터를 요청할 주소
-    - limit: 한 번에 보여줄 개수 (기본값 6개)
+    [커스텀 훅] 데이터 더보기 기능 + 상태 업데이트 기능
 */
 export const usePagination = (url, limit = 6) => {
     
@@ -20,7 +18,7 @@ export const usePagination = (url, limit = 6) => {
     // 더 보여줄 데이터가 있는지 여부
     const [hasMore, setHasMore] = useState(true);
 
-    // 1. 최초 데이터 로드 (한 번만 실행)
+    // 1. 최초 데이터 로드
     useEffect(() => {
         loadData();
     }, []);
@@ -28,12 +26,9 @@ export const usePagination = (url, limit = 6) => {
     const loadData = useCallback(async () => {
         try {
             const resp = await axios.get(url);
-            // 백엔드에서 배열을 바로 준다고 가정 (ScheduleListResponseVO[])
             const allData = resp.data;
             
             setFullList(allData);
-            
-            // 첫 페이지 분량만큼 자르기
             setList(allData.slice(0, limit));
             setHasMore(allData.length > limit);
         } catch (err) {
@@ -41,21 +36,31 @@ export const usePagination = (url, limit = 6) => {
         }
     }, [url, limit]);
 
-    // 2. 페이지가 변경될 때마다 보여줄 데이터 추가
+    // 2. 페이지 변경 시 데이터 추가 표시 (fullList가 변해도 작동함)
     useEffect(() => {
-        if (page === 1) return; // 첫 로딩은 위에서 처리함
-
         const nextEnd = page * limit;
-        setList(fullList.slice(0, nextEnd)); // 0부터 현재 페이지까지 잘라서 보여줌
-        
-        // 남은 데이터가 있는지 확인
+        setList(fullList.slice(0, nextEnd));
         setHasMore(fullList.length > nextEnd);
     }, [page, fullList, limit]);
 
-    // 더보기 버튼 클릭 시 호출할 함수
+    // 3. 더보기 버튼 기능
     const nextPage = () => {
         setPage((prevPage) => prevPage + 1);
     };
 
-    return { list, hasMore, nextPage };
+    // [핵심] 4. 특정 아이템의 정보만 수정하는 함수 (좋아요 반영용)
+    // targetId: 바꿀 일정의 ID (scheduleNo)
+    // newFields: 바꿀 내용 객체 (예: { likeCount: 5, isLiked: true })
+    const updateItem = (targetId, newFields) => {
+        setFullList(prevFullList => 
+            prevFullList.map(item => 
+                // item의 ID 필드명이 scheduleNo라고 가정 (상황에 맞게 수정 필요)
+                item.scheduleNo === targetId 
+                    ? { ...item, ...newFields } 
+                    : item
+            )
+        );
+    };
+
+    return { list, hasMore, nextPage, updateItem };
 };

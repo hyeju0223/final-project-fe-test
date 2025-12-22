@@ -1,3 +1,5 @@
+import { useOutletContext } from "react-router-dom";
+import Jumbotron from "../templates/Jumbotron";
 import "../account/AccountPay.css";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react"
@@ -14,6 +16,7 @@ import { useRef } from "react";
 
 
 export default function MyPayment(){
+
     
     const [paymentList, setPaymentList] = useState([]);
     const loginComplete = useAtomValue(loginCompleteState);
