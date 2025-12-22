@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAtom, useAtomValue } from "jotai";
 import { accessTokenState, counselorState, loginIdState, loginLevelState, loginState, messageHistoryState, refreshTokenState } from "../../utils/jotai";
 import { toast } from "react-toastify";
+import SockJS from "sockjs-client";
+import { Client } from "@stomp/stompjs";
 
 const API_URL = '/chat';
 
@@ -31,22 +33,8 @@ export default function CounselorDashboard() {
     const isLoggedIn = useAtomValue(loginState);
     const isCounselor = useAtomValue(counselorState);
 
-    // useEffect(() => {
-    //     if (checkedAuth) return;
-
-    //     if (!isLoggedIn) {
-    //         navigate("/account/login");
-    //         setCheckedAuth(true);
-    //         return;
-    //     }
-
-    //     if (!isCounselor) {
-    //         //alert("상담사 전용 페이지입니다.");
-    //         navigate("/unauthorized");
-    //         setCheckedAuth(true);
-    //         //return;
-    //     }
-    // }, [isLoggedIn, isCounselor, checkedAuth]);
+    const stompClientRef = useRef(null);
+    const subscriptionRef = useRef(null);
 
     useEffect(() => {
         if (checkedAuth) return;
@@ -86,7 +74,7 @@ export default function CounselorDashboard() {
                     userName: `고객 #${dto.chatNo}`,
                     status: dto.chatStatus,
                     title: dto.chatStatus === "WAITING" ? "새로운 상담 요청" : `진행 중인 채팅`,
-                    userGrade: "N/A",
+                    userGrade: dto.accountLevel || "일반회원",
                     chatId: dto.chatId,
                     chatLevel: dto.chatLevel
                 }));
@@ -146,15 +134,63 @@ export default function CounselorDashboard() {
         }
     }, [loginId, room]);
 
+    // 1. 최초 1회 연결
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, selectedRoomId]);
+        if (!accessToken) return;
 
-    // useEffect(() => {
-    //     if (selectedRoomId && !room.some(r => r.id === selectedRoomId)) {
-    //         setSelectedRoomId(null);
-    //     }
-    // }, [room]);
+        const socket = new SockJS("http://localhost:8080/ws");
+        const client = new Client({
+            webSocketFactory: () => socket,
+            connectHeaders: {
+                accessToken: `Bearer ${accessToken}`,
+                refreshToken: `Bearer ${refreshToken}`,
+            },
+            onConnect: () => {
+                console.log("STOMP 연결 완료");
+            }
+        });
+
+        client.activate();
+        stompClientRef.current = client;
+
+        return () => {
+            client.deactivate();
+            stompClientRef.current = null;
+        };
+    }, [accessToken, refreshToken]);
+
+    useEffect(() => {
+        console.log("Subscribing to room:", selectedRoomId);
+        if (
+            !stompClientRef.current ||
+            !stompClientRef.current.connected ||
+            !selectedRoomId
+        ) return;
+
+        subscriptionRef.current?.unsubscribe();
+
+        subscriptionRef.current =
+            stompClientRef.current.subscribe(
+                `/public/message/${selectedRoomId}`,
+                (msg) => {
+                    const json = JSON.parse(msg.body);
+
+                    setMessages(prev => ({
+                        ...prev,
+                        [selectedRoomId]: [
+                            ...(prev[selectedRoomId] || []),
+                            json
+                        ]
+                    }));
+                }
+            );
+
+        return () => {
+            subscriptionRef.current?.unsubscribe();
+            subscriptionRef.current = null;
+        };
+    }, [selectedRoomId]);
+
 
     useEffect(() => {
         if (!selectedRoomId) return;
@@ -166,40 +202,6 @@ export default function CounselorDashboard() {
             setSelectedRoomId(null);
         }
     }, [room, selectedRoomId]);
-
-    // const updateChatStatus = async (chatNo, newStatus) => {
-    //     //const rawToken = sessionStorage.getItem("accessToken");
-    //     if (!accessToken) return;
-    //     const token = accessToken.replace(/"/g, '');
-
-    //     const updateData = {
-    //         chatNo,
-    //         chatStatus: newStatus,
-    //     };
-
-    //     await axios.post(`${API_URL}/status`, updateData, {
-    //         headers: {
-    //             Authorization: `Bearer ${token}`,
-    //         }
-    //     });
-
-    //     try {
-    //         const response = await axios.post(`${API_URL}/status`, updateData, {
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 "Authorization": `Bearer ${token}`,
-    //             }
-    //         });
-
-    //         // 성공 시 목록 새로고침
-    //         if (response.status === 200 || response.status === 204) {
-    //             // await fetchChatRooms();
-    //         }
-    //     } catch (error) {
-    //         console.error("오류 발생 줄:", error.config);
-    //         alert(`상태 변경 실패: ${error.response?.data || error.message}`);
-    //     }
-    // };
 
     const updateChatStatus = async (chatNo, newStatus) => {
     if (!accessToken) return;
@@ -244,21 +246,38 @@ export default function CounselorDashboard() {
     };
 
     const handleSendMessage = () => {
-        if (!inputText.trim() || !selectedRoomId) return;
+        // 로그를 추가하여 함수 호출 여부 확인
+        console.log("전송 버튼 클릭됨, 입력값:", inputText);
+        
+        if (!inputText.trim() || !selectedRoomId || !stompClientRef.current) {
+            console.error("전송 불가 상태:", { 
+                text: !!inputText.trim(), 
+                room: !!selectedRoomId, 
+                client: !!stompClientRef.current 
+            });
+            return;
+        }
 
-        const newMessage = {
-            sender: 'me',
-            text: inputText,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        const payload = {
+            messageSender: loginId,
+            chatNo: selectedRoomId,
+            messageType: "TALK",
+            content: inputText,
         };
 
-        setMessages(prev => ({
-            ...prev,
-            [selectedRoomId]: [...(prev[selectedRoomId] || []), newMessage]
-        }));
+        stompClientRef.current.publish({
+            destination: `/app/message/${selectedRoomId}`,
+            headers: {
+                accessToken: `Bearer ${accessToken}`,
+                refreshToken: `Bearer ${refreshToken}`,
+            },
+            body: JSON.stringify(payload)
+        });
 
+        console.log("메시지 전송 완료:", payload);
         setInputText("");
-    };
+};
+
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") handleSendMessage();
@@ -277,6 +296,13 @@ export default function CounselorDashboard() {
 
     const currentRoom = room?.find(r => r.id === selectedRoomId) || null;
     const currentMessages = messages[selectedRoomId] || [];
+
+    useEffect(() => {
+        if (messagesEndRef.current) { 
+            const container = messagesEndRef.current;
+            container.scrollTop = container.scrollHeight;
+        }
+    }, [history]);
 
     const getBadgeStyle = (status) => {
         switch (status) {
@@ -305,7 +331,7 @@ export default function CounselorDashboard() {
                         const badge = getBadgeStyle(room.status);
 
                         return (
-                            <div key={room.id} onClick={() => handleRoomClick(room.id)}
+                            <div key={room.id} onClick={() => handleRoomClick(room.id)} 
                                 style={{
                                     ...styles.roomItem,
                                     backgroundColor: selectedRoomId === room.id ? '#e6f7ff' : 'white',
@@ -350,46 +376,40 @@ export default function CounselorDashboard() {
                                     <span style={styles.closedBadge}>상담 종료됨</span>
                                 )}
                             </div>
-
-                            <div style={styles.messageArea}>
-                                {(currentMessages || []).map((msg, i) => (
-                                    <div
-                                        key={i}
-                                        style={{
+                            
+                            <div style={styles.messageArea} ref={messagesEndRef}>
+                                {(messages[selectedRoomId] || []).map((msg, i) => {
+                                    
+                                    // 백엔드 로그 기준: 전송 시 messageSender에 loginId를 담아 보냈으므로 확인
+                                    console.log("Received message");
+                                    const sender = msg.messageSender || msg.loginId; 
+                                    const isMyMessage = sender === loginId;
+                                    console.log("Message sender:", sender, "Is my message:", isMyMessage);
+                                    return (
+                                        <div key={i} style={{
                                             ...styles.messageRow,
-                                            justifyContent: msg.sender === 'me' ? 'flex-end' : 'flex-start'
-                                        }}
-                                    >
-                                        <div style={{
-                                            ...styles.messageBubble,
-                                            backgroundColor: msg.sender === 'me' ? '#1890ff' : '#f0f0f0',
-                                            color: msg.sender === 'me' ? 'white' : 'black',
+                                            justifyContent: isMyMessage ? 'flex-end' : 'flex-start',
+                                            display: 'flex',
+                                            margin: '10px 0'
                                         }}>
-                                            {msg.text}
+                                            <div style={{
+                                                ...styles.messageBubble,
+                                                backgroundColor: isMyMessage ? '#1890ff' : '#f0f0f0',
+                                                color: isMyMessage ? 'white' : 'black',
+                                                alignSelf: isMyMessage ? 'flex-end' : 'flex-start',
+                                                borderRadius: '12px',
+                                                padding: '8px 15px',
+                                                maxWidth: '70%'
+                                            }}>
+                                                {/* content와 messageContent 둘 다 대응 */}
+                                                {msg.content || msg.messageContent}
+                                            </div>
                                         </div>
-                                        <span style={styles.timeText}>{msg.time}</span>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                                 <div ref={messagesEndRef} />
                             </div>
 
-                            {/* {currentRoom?.status === 'ACTIVE' ? (
-                                <div style={styles.inputArea}>
-                                    <input
-                                        type="text"
-                                        value={inputText}
-                                        onChange={(e) => setInputText(e.target.value)}
-                                        onKeyDown={handleKeyDown}
-                                        style={styles.input}
-                                        placeholder="메시지를 입력하세요..."
-                                    />
-                                    <button style={styles.sendButton} onClick={handleSendMessage}>전송</button>
-                                </div>
-                            ) : (
-                                <div style={styles.inputDisabledArea}>
-                                    종료된 상담에는 메시지를 보낼 수 없습니다.
-                                </div>
-                            )} */}
                             {currentRoom?.status === 'ACTIVE' && (
                                 <div style={styles.inputArea}>
                                     <input
@@ -448,10 +468,10 @@ export default function CounselorDashboard() {
                                 <p>배정 상담사: {currentRoom?.chatId || '없음'}</p>
                             </div>
 
-                            <div style={styles.infoCard}>
+                            {/* <div style={styles.infoCard}>
                                 <strong>지도 영역</strong>
                                 <div style={styles.mapPlaceholder}>[ Kakao Map ]</div>
-                            </div>
+                            </div> */}
                         </div>
                     ) : (
                         <div style={{ textAlign: 'center', color: '#999', marginTop: '50px' }}>
@@ -468,7 +488,7 @@ const styles = {
     container: {
         display: 'flex',
         width: '100%',
-        overflow: 'hidden',
+        height: '70vh',
     },
     // 왼쪽 영역
     leftPane: {
@@ -476,7 +496,6 @@ const styles = {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        minHeight: '800px',
     },
     paneHeader: {
         padding: '15px 20px',
@@ -515,9 +534,8 @@ const styles = {
         flex: '1 1 0',
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden',
         height: '100%',
-        minHeight: '800px',
+        overflow: 'hidden',
     },
     chatHeader: {
         height: '60px',
@@ -623,8 +641,6 @@ const styles = {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        overflow: 'hidden',
-        minHeight: '800px',
     },
     infoCard: {
         backgroundColor: '#fff',
