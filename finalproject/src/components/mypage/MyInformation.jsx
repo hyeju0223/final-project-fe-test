@@ -8,7 +8,7 @@ const MINT_COLOR = "#78C2AD";
 
 export default function MyInfo() {
     // setMyInfo는 상위(Outlet)에서 전달해줘야 함 (화면 갱신용)
-    const { myInfo, setMyInfo } = useOutletContext(); 
+    const { myInfo, setMyInfo } = useOutletContext(); // 회원의 로그인정보가 들어있음
 
     // 모달 설정 State
     const [modalConfig, setModalConfig] = useState({

@@ -1,7 +1,9 @@
+import { useOutletContext } from "react-router-dom";
 import Jumbotron from "../templates/Jumbotron";
 
 
 export default function MyPayment(){
+
     
     //render
     return (<>

@@ -42,7 +42,7 @@ export default function MySchedule() {
     async function loadData() {
       const { data } = await axios.get(`/schedule/list/${myInfo.accountId}`);
       setSchedule(data);
-      console.log(data);
+      // console.log(data);
       // if(data.)
     }
     loadData();
@@ -50,14 +50,14 @@ export default function MySchedule() {
 
   const todayBtn = useCallback((day) => {
     setSelectDay(day.format("YYYY-MM-DD"));
-    console.log(day.format("YYYY-MM-DD"));
+    // console.log(day.format("YYYY-MM-DD"));
   }, [selectDay]);
 
   const scheduleDateSet = new Set();
   for (const s of schedule) {
     const day = dayjs(s.scheduleStartDate).format("YYYY-MM-DD");
     scheduleDateSet.add(day);
-    console.log(scheduleDateSet);
+    // console.log(scheduleDateSet);
   }
 
   // 상태 뱃지 클래스
@@ -158,7 +158,7 @@ export default function MySchedule() {
                         {/* 내용 */}
                         <div className="d-flex flex-column justify-content-center flex-grow-1">
                           <h5 className="fw-semibold tp-title text-truncate mb-2">
-                            {s.scheduleName}
+                            {s.scheduleName},
                           </h5>
 
                           <div className="tp-meta small mb-2 text-truncate">
