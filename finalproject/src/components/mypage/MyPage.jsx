@@ -23,6 +23,8 @@ const PALETTE = {
 
 export default function MyPage() {
 
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
     // 이동 도구
     const navigate = useNavigate();
 
@@ -54,7 +56,7 @@ export default function MyPage() {
 
     const location = useLocation();
     const [activeTab, setActiveTab] = useState(location.pathname);
-    const [profileUrl, setProfileUrl] = useState("/images/default-profile.jpg");
+    const [profileUrl, setProfileUrl] = useState(`${BASE}/images/default-profile.jpg`);
 
     // state (내 정보)
     const [myInfo, setMyinfo] = useState({
@@ -84,13 +86,13 @@ export default function MyPage() {
 
     const loadData = useCallback(async () => {
         try {
-            const resp = await axios.get("/account/mypage");
+            const resp = await axios.get(`/api/account/mypage`);
             setMyinfo(resp.data);
 
             if (resp.data.attachmentNo) {
-                setProfileUrl(`/attachment/download?attachmentNo=${resp.data.attachmentNo}`);
+                setProfileUrl(`${BASE}/api/attachment/download?attachmentNo=${resp.data.attachmentNo}`);
             } else {
-                setProfileUrl("/images/default-profile.jpg");
+                setProfileUrl(`${BASE}/images/default-profile.jpg`);
             }
         }
         catch (e) {
@@ -108,7 +110,7 @@ export default function MyPage() {
         formData.append("attach", file);
 
         try {
-            const resp = await axios.post("/account/profile", formData);
+            const resp = await axios.post(`/api/account/profile`, formData);
             if (resp) loadData();
 
             Swal.fire({
@@ -180,7 +182,7 @@ export default function MyPage() {
             const rawPassword = result.value;
 
             try {
-                await axios.post("/account/withdraw", { accountPw: rawPassword });
+                await axios.post(`${BASE}/api/account/withdraw`, { accountPw: rawPassword });
 
                 window.sessionStorage.removeItem("accessToken");
                 window.localStorage.removeItem("refreshToken");
@@ -225,7 +227,7 @@ export default function MyPage() {
                             <img src={profileUrl} className="rounded-circle border shadow-sm"
                                 style={{ width: "120px", height: "120px", objectFit: "cover" }}
                                 onError={(e) => {
-                                    e.target.src = "/images/default-profile.jpg";
+                                    e.target.src = `${BASE}/images/default-profile.jpg`;
                                 }}
                                 alt="프로필" />
 

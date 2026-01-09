@@ -7,9 +7,9 @@ import { accessTokenState, clearLoginState, refreshTokenState } from "../jotai";
 const store = getDefaultStore();
 
 // axios setting
-axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
+axios.defaults.baseURL = import.meta.env.VITE_AJAX_URL;
 // axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
-axios.defaults.timeout = 10000;
+axios.defaults.timeout = 30000;
 
 //axios interceptor
 axios.interceptors.request.use((config)=>{//config는 axios 설정
@@ -47,7 +47,7 @@ axios.interceptors.response.use((response) => {
     }
     catch(ex) {//refresh token마저 사용이 불가능한 상황
         store.set(clearLoginState);//모든 jotai state 초기화(컴포넌트 외부에서만 가능한 코드)
-        location.href = "/account/login";
+        location.href = `/account/login`;
     }
     return Promise.reject(error);//에러 발생 처리
 });

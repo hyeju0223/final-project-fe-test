@@ -3,6 +3,7 @@ import { MapPin, Heart, Star, ArrowRight, User, Hash, ChevronLeft, ChevronRight 
 import axios from 'axios';
 import dayjs from 'dayjs';
 import { Link, useNavigate } from 'react-router-dom';
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 // --- [Mock Data] 메인 배너 데이터 ---
 const banners = [
@@ -55,13 +56,19 @@ export default function Home() {
 
     const loadData = async () => {
         try {
-            const scheduleResp = await axios.get("/schedule/");
-            setSchedules(scheduleResp.data);
+            const scheduleResp = await axios.get(`/api/schedule/all`);
+const data = scheduleResp.data;
 
-            const tagResp = await axios.get("/schedule/tagList");
-            setTagList(tagResp.data);
+setSchedules(Array.isArray(data) ? data : []); // ✅ 여기 핵심
+
+            const tagResp = await axios.get(`/api/schedule/tagList`);
+            setTagList(Array.isArray(tagResp.data) ? tagResp.data : []);
+
+
         } catch (e) {
             console.error("데이터 로드 실패", e);
+                setSchedules([]); // ✅ 안전장치
+    setTagList([]);   // ✅ 안전장치
         }
     };
 
@@ -185,6 +192,10 @@ export default function Home() {
         }
     };
 
+
+
+    
+
     return (
         <div className="content-wrapper container py-4" style={styles.wrapper}>
             <style>
@@ -258,7 +269,7 @@ export default function Home() {
                                 {banner.subtitle}
                             </p>
                             <button className="btn text-white px-4 py-2 rounded-pill fw-bold shadow-sm"
-                                onClick={() => navigate('/schedule/list')}
+                                onClick={() => navigate(`/schedule/list`)}
                                 style={{ backgroundColor: banner.btnColor, width: "fit-content", border: "none", zIndex: 2 }}>
                                 자세히 보기 <ArrowRight size={18} className="ms-1" />
                             </button>
@@ -325,10 +336,10 @@ export default function Home() {
                                                 <img
                                                     src={
                                                         item.scheduleImage
-                                                            ? `/attachment/download/${item.scheduleImage}`
-                                                            : "/images/default-schedule.png"
+                                                            ? `${BASE}/api/attachment/download?attachmentNo=${item.scheduleImage}`
+                                                            : `${BASE}/images/default-schedule.png`
                                                     }
-                                                    onError={(e) => e.target.src = "/images/default-schedule.png"}
+                                                    onError={(e) => e.target.src = `${BASE}/images/default-schedule.png`}
                                                     alt={item.scheduleName}
                                                     style={styles.cardImage}
                                                 />

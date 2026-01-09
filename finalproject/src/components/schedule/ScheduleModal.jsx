@@ -24,9 +24,9 @@ export default function ScheduleModal({ isOpen, onClose }) {
 
     const [tags, setTags] = useState([]);
     const [selectTag, setSelectTag] = useState([]); // 태그 '이름'들을 담습니다.
-
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
     // custom hook
-    const { file, preview, handleFile, setPreview, setFile } = useImage("/images/default-profile.jpg");
+    const { file, preview, handleFile, setPreview, setFile } = useImage(`${BASE}/images/default-profile.jpg`);
 
     useEffect(() => {
         if (isOpen) {
@@ -36,8 +36,8 @@ export default function ScheduleModal({ isOpen, onClose }) {
             setChecked(false);
             setSelectTag([]);
             setSchedulePublic("N"); // 기본 비공개
-            
-            if(setPreview) setPreview("/images/default-schedule.png");
+
+            if(setPreview) setPreview(`${BASE}/images/default-schedule.png`);
             if(setFile) setFile(null);
 
             loadTags();
@@ -46,7 +46,7 @@ export default function ScheduleModal({ isOpen, onClose }) {
 
     const loadTags = async () => {
         try {
-            const { data } = await axios.get("/schedule/tagList");
+            const { data } = await axios.get("/api/schedule/tagList");
             setTags(data);
         } catch (e) {
             console.error("태그 로드 실패", e);
@@ -90,7 +90,7 @@ export default function ScheduleModal({ isOpen, onClose }) {
         }
 
         try {
-            await axios.post("/schedule/insert", formData);
+            await axios.post("/api/schedule/insert", formData);
             alert(`[${formData.get('scheduleName')}] 일정이 등록되었습니다!`);
             console.log("SAVE 데이터 =", formData);
             onClose();

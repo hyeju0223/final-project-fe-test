@@ -58,12 +58,12 @@ const AccountfindPwStep2 = ({ accountId }) => {
             return;
         }
         try {
-            await axios.patch("/account/changePw", {
+            await axios.patch("/api/account/changePw", {
                 accountId: accountId,
                 accountPw: account.accountPw
             });
             alert("비밀번호가 성공적으로 변경되었습니다. 로그인 페이지로 이동합니다.");
-            navigate("account/login");
+            navigate("/account/login");
         }
         catch (e) {
             console.error(e);

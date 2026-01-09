@@ -7,11 +7,11 @@ import Swal from "sweetalert2";
 import { TiDelete } from "react-icons/ti";
 import { useAtomValue } from "jotai";
 import { accessTokenState, guestKeyState, guestState, loginIdState, loginLevelState } from "../../utils/jotai";
-import { guestNicknameState } from "../../../../test-kakaopay/src/utils/jotai";
+import { guestNicknameState } from "../../utils/jotai";
 
 
 export default function Reply({ reviews = [], memberList = [], loadReviews }) {
-
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
     const [input, setInput] = useState("");
     // const [replyList, setReplyList] = useState([]);
     const [accountName, setAccountName] = useState("");
@@ -38,7 +38,7 @@ export default function Reply({ reviews = [], memberList = [], loadReviews }) {
     const canWriteReply =
         isMember || (loginLevel === "비회원" && !!accessToken?.trim());
     console.log("리스트확인", memberList);
-    const [profileUrl, setProfileUrl] = useState("/images/default-profile.jpg");
+    const [profileUrl, setProfileUrl] = useState(`${BASE}/images/default-profile.jpg`);
 
     const cleanData = useCallback(() => {
         setInput("");
@@ -57,7 +57,7 @@ export default function Reply({ reviews = [], memberList = [], loadReviews }) {
             // setReplyList(data);
 
             // 2) 대표 일정의 세부일정 리스트(객체 리스트)
-            const { data: unitData } = await axios.get(`/review/unit/list/${scheduleNo}`);
+            const { data: unitData } = await axios.get(`/api/review/unit/list/${scheduleNo}`);
             console.log("대표일정 세부일정확인=", unitData);
             setShowUnitList(unitData);
             loadReviews();
@@ -72,16 +72,16 @@ export default function Reply({ reviews = [], memberList = [], loadReviews }) {
 
     async function loadReviewUnitList(reviewNo) {
         console.log("숫자" + reviewNo)
-        const { data } = await axios.get(`/review/unit/${reviewNo}`);
+        const { data } = await axios.get(`/api/review/unit/${reviewNo}`);
         console.log("유닛리스트 데이터확인", data);
-        setShowReviewUnitList(data); ''
+        setShowReviewUnitList(data); 
     }
 
     const sendData = useCallback(async () => {
 
 
         try {
-            const { data } = await axios.post("/review/insert",
+            const { data } = await axios.post("/api/review/insert",
                 {
                     scheduleNo: Number(scheduleNo),
                     scheduleUnitList: scheduleUnitList,
@@ -109,7 +109,7 @@ export default function Reply({ reviews = [], memberList = [], loadReviews }) {
 
     const deleteScheduleUnitNo = useCallback(async (reviewNo, scheduleUnitNo) => {
         try {
-            await axios.delete(`/review/unit/${reviewNo}`, {
+            await axios.delete(`/api/review/unit/${reviewNo}`, {
                 params: { scheduleUnitNo }
             });
             console.log(scheduleUnitNo);
@@ -131,7 +131,7 @@ export default function Reply({ reviews = [], memberList = [], loadReviews }) {
 
     const sendUpdateReply = useCallback(async (reply) => {
 
-        await axios.patch(`/review/${reply.reviewNo}`, {
+        await axios.patch(`/api/review/${reply.reviewNo}`, {
             reviewContent: editReply
         });
         setEditReviewNo(null);
@@ -165,7 +165,7 @@ export default function Reply({ reviews = [], memberList = [], loadReviews }) {
                     title: "삭제 완료!",
                     icon: "success"
                 });
-                await axios.delete(`/review/${reply.reviewNo}`);
+                await axios.delete(`/api/review/${reply.reviewNo}`);
 
             }
             loadData();
@@ -183,6 +183,20 @@ export default function Reply({ reviews = [], memberList = [], loadReviews }) {
         (reply.reviewWriterType === "GUEST" &&
             reply.reviewWriterNickname?.trim() === guestNickname?.trim());
 
+            function formatDateOnly(v) {
+  if (!v) return "";
+
+  // LocalDateTime 배열 형태 [yyyy, mm, dd, hh, mm, ss, nano]
+  if (Array.isArray(v)) {
+    const [y, m, d] = v;
+    return `${y}.${String(m).padStart(2, "0")}.${String(d).padStart(2, "0")}`;
+  }
+
+  const date = new Date(v);
+  if (isNaN(date.getTime())) return "";
+
+  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
+}
 
 
     return (
@@ -199,7 +213,14 @@ export default function Reply({ reviews = [], memberList = [], loadReviews }) {
 
                     {/* 리스트 */}
                     <div className="reply-list-v3">
-                        {reviews.map((reply, index) => (
+                        {reviews.map((reply) => {
+
+    const profileNo =
+      memberList?.find(m => String(m.accountId) === String(reply.accountId))
+        ?.profileAttachmentNo;
+
+
+return (
                             <div className="reply-card-v3" key={reply.reviewNo}>
                                 {/* 카드 헤더: 프로필/닉네임/시간 + 액션 */}
                                 <div className="reply-card-head-v3">
@@ -207,11 +228,12 @@ export default function Reply({ reviews = [], memberList = [], loadReviews }) {
                                         <div className="reply-avatar-wrap-v3">
                                             <img
                                                 className="reply-avatar-v3"
-                                                src={
-                                                    (reply.attachmentNo ?? reply.attachments?.[0]?.attachmentNo)
-                                                        ? `http://192.168.20.16:8080/attachment/download?attachmentNo=${reply.attachmentNo ?? reply.attachments?.[0]?.attachmentNo}`
-                                                        : profileUrl
+                                                 src={
+                                                 profileNo
+                                                ? `${BASE}/api/attachment/download?attachmentNo=${profileNo}`
+                                                : `${BASE}/images/default-profile.jpg`
                                                 }
+                                                onError={(e)=>{e.currentTarget.src = `${BASE}/images/default-profile.jpg`}}
                                                 alt=""
                                             />
                                         </div>
@@ -222,7 +244,7 @@ export default function Reply({ reviews = [], memberList = [], loadReviews }) {
                                                     <span className="small ms-1">(비회원)</span>
                                                 )}
                                             </div>
-                                            <div className="reply-time-v3">{reply.reviewWtime}</div>
+                                            <div className="reply-time-v3"> {formatDateOnly(reply.reviewWtime)}</div>
                                         </div>
                                     </div>
 
@@ -312,7 +334,8 @@ export default function Reply({ reviews = [], memberList = [], loadReviews }) {
                                     <div className="reply-content-v3">{reply.reviewContent}</div>
                                 )}
                             </div>
-                        ))}
+        );
+        })}
                     </div>
 
                     {/* 아래 일정 리스트 (기존 기능 유지)

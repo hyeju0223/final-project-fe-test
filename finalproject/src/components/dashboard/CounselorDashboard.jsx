@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 
-const API_URL = '/chat';
+const API_URL = '/api/chat';
 
 export default function CounselorDashboard() {
     const navigate = useNavigate();
@@ -209,7 +209,7 @@ export default function CounselorDashboard() {
 
         try {
             const response = await axios.post(
-                `${API_URL}/status`,
+                `/api${API_URL}/status`,
                 { chatNo, chatStatus: newStatus },
                 {
                     headers: {

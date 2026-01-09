@@ -15,6 +15,7 @@ export default function MySchedule() {
 
   // 부모(Mypage)에서 넘겨준 정보를 받아서 사용
   const { myInfo, setMyInfo } = useOutletContext();
+  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   const accountId = useAtomValue(loginIdState);
 
@@ -42,7 +43,7 @@ export default function MySchedule() {
     if (!myInfo.accountId) return;
 
     async function loadData() {
-      const { data } = await axios.get(`/schedule/list/${myInfo.accountId}`);
+      const { data } = await axios.get(`/api/schedule/list/${myInfo.accountId}`);
       setSchedule(data);
       // console.log(data);
       // if(data.)
@@ -64,7 +65,7 @@ export default function MySchedule() {
       if (result.isConfirmed) {
         try {
           // 1. 서버에 삭제 요청
-          await axios.delete(`/schedule/delete/${scheduleNo}`);
+          await axios.delete(`/api/schedule/delete/${scheduleNo}`);
 
           // 2. 화면 상태 갱신 (filter를 사용해 삭제된 번호만 제외)
           setSchedule(prev => prev.filter(s => s.scheduleNo !== scheduleNo));
@@ -192,10 +193,10 @@ export default function MySchedule() {
                             style={{ height: "100%", width: "100%", objectFit: "cover" }}
 
                             className="w-100 border shadow-sm"
-                            src={`http://192.168.20.16:8080/attachment/download/${s.scheduleImage}`
+                            src={`${BASE}/api/attachment/download?attachmentNo=${s.scheduleImage}`
 
                             } onError={(e) => {
-                              "/images/default-schedule.png";
+                              e.target.src = `${BASE}/images/default-schedule.png`;
                             }}
                           />
                         </div>
@@ -283,7 +284,7 @@ export default function MySchedule() {
                       style={{ height: "100%", width: "100%", objectFit: "cover" }}
 
                       className="w-100 border shadow-sm"
-                      src={`http://192.168.20.16:8080/attachment/download/${s.scheduleImage}`} alt=""
+                      src={`${BASE}/api/attachment/download?attachmentNo=${s.scheduleImage}`} alt=""
                     />
                   </div>
 

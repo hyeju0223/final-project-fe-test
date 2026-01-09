@@ -47,6 +47,7 @@ const AccountJoinStep1 = ({ onNext }) => {
         if (!phone) return;
         const cleanPhone = phone.replace(/-/g, "");
         const regex = /^010[1-9][0-9]{7}$/;
+        console.log("axios baseURL", axios.defaults.baseURL);
 
         if (!regex.test(cleanPhone)) {
             alert("휴대폰 번호를 정확히 입력해주세요.");
@@ -59,10 +60,10 @@ const AccountJoinStep1 = ({ onNext }) => {
         }
 
         try {
-            await axios.post("/cert/sendPhone", null, {
+            const resp = await axios.post("/api/cert/sendPhone", null, {
                 params: { phone: cleanPhone }
             });
-
+                        console.log("sendPhone resp", resp.status, resp.data);
             // 상태 업데이트 (재발송 시 초기화 로직 포함)
             setIsSent(true);
             setCertFeedback(""); // 피드백 초기화
@@ -77,10 +78,6 @@ const AccountJoinStep1 = ({ onNext }) => {
             } else {
                 console.error(e);
                 alert("메시지 발송 실패 (서버 연결 확인 필요)");
-                // 테스트용 로직 (실제 사용 시 제거)
-                setIsSent(true);
-                setCertNumber("");
-                startTimer();
             }
         }
     }, [phone, startTimer, isSent]);
@@ -98,10 +95,13 @@ const AccountJoinStep1 = ({ onNext }) => {
 
         try {
             const cleanPhone = phone.replace(/-/g, "");
-            const response = await axios.post("/cert/check", {
+            const response = await axios.post("/api/cert/check", {
                 certTarget: cleanPhone,
                 certNumber: certNumber
             });
+            
+            console.log( cleanPhone, certNumber );
+
 
             if (response.data === true) {
                 setCertFeedback("");

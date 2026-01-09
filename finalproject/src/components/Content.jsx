@@ -50,6 +50,7 @@ import Review from "./schedule/Review";
 import AdminSchedule from "./admin/schedule/AdminSchedule";
 import AdminCounselor from "./admin/counselor/AdminCounselor";
 import AdminPayment from "./admin/payment/AdminPayment";
+import KakaoPaySuccessPage from "./kakaopay/KakaoPaySuccessPage";
 
 export default function Content() {
     return (<>
@@ -90,6 +91,10 @@ export default function Content() {
                     <Route path="/kakaopay/pay/info" element={<AccountPayInformation />}></Route>
                     <Route path="/kakaopay/pay/detail" element={<AccountPayDetail />}></Route>
                     <Route path="/kakaopay/pay/detail/:paymentNo" element={<AccountPayDetail />}></Route>
+
+                    <Route path="/kakaopay/buy/success/:partnerOrderId" element={<KakaoPaySuccessPage />} />
+
+
                     {/* 카카오페이 결제 내역 */}
 
                     {/* 일정 관련 */}

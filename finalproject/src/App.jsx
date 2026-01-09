@@ -81,7 +81,7 @@ function App() {
 
   return (
     <>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <CounselorBlocker />
         {/* Jotai 개발자 도구 */}
         {process.env.NODE_ENV === "development" && <DevTools />}

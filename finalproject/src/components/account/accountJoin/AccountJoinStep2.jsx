@@ -14,9 +14,10 @@ const MINT_COLOR = "#78C2AD";
 const AccountJoinStep2 = ({ verifiedPhone }) => {
     // 이동도구
     const navigate = useNavigate();
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
     // custom hook
-    const { file, preview, handleFile } = useImage("/images/default-profile.jpg");
+    const { file, preview, handleFile } = useImage(`${BASE}/images/default-profile.jpg`);
 
     //state
     const [account, setAccount] = useState({
@@ -65,7 +66,7 @@ const AccountJoinStep2 = ({ verifiedPhone }) => {
         const isValid = regex.test(account.accountId);
         if (isValid) {
             try {
-                const { data } = await axios.get(`/account/accountId/${account.accountId}`);
+                const { data } = await axios.get(`/api/account/accountId/${account.accountId}`);
                 if (data === true) {
                     setAccountClass(prev => ({ ...prev, accountId: "is-valid" }));
                 }
@@ -109,7 +110,7 @@ const AccountJoinStep2 = ({ verifiedPhone }) => {
         const isValid = regex.test(account.accountNickname);
         if (isValid === true) {
             try {
-                const { data } = await axios.get(`/account/accountNickname/${account.accountNickname}`);
+                const { data } = await axios.get(`/api/account/accountNickname/${account.accountNickname}`);
                 if (data === true) {
                     setAccountClass(prev => ({ ...prev, accountNickname: "is-valid" }));
                 }
@@ -172,7 +173,7 @@ const AccountJoinStep2 = ({ verifiedPhone }) => {
 
         if (accountValid === false) return;
         try {
-            await axios.post("/account/join", formData);
+            await axios.post("/api/account/join", formData);
             navigate("/account/joinFinish");
         } catch (e) {
             if (e.response && e.response.status === 409) {
@@ -212,7 +213,7 @@ const AccountJoinStep2 = ({ verifiedPhone }) => {
                                         className="rounded-circle shadow-sm border"
                                         style={{ width: "120px", height: "120px", objectFit: "cover" }}
                                         onError={(e) => {
-                                            e.target.src = "/images/default-profile.jpg";
+                                             e.target.src = `${BASE}/images/default-profile.jpg`;
                                         }}
                                     />
                                     <label

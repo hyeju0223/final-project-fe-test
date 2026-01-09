@@ -8,9 +8,8 @@ import { TiDelete } from "react-icons/ti";
 import { useAtomValue } from "jotai";
 import { accessTokenState, loginIdState, loginLevelState } from "../../utils/jotai";
 
-export default function Review({reviews = [], loadReviews}) {
-
-    const [input, setInput] = useState("");
+export default function Review({reviews = [], loadReviews, memberList = []}) {
+    const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
     // const [replyList, setReplyList] = useState([]);
     const [accountName, setAccountName] = useState("");
     const [time, setTime] = useState(null);
@@ -21,12 +20,13 @@ export default function Review({reviews = [], loadReviews}) {
     const [editReply, setEditReply] = useState("");
     const [hoverIndex, setHoverIndex] = useState(null);
     const [showReviewUnitList, setShowReviewUnitList] = useState([]);
+    const [input, setInput] = useState("");
 
     const accessToken = useAtomValue(accessTokenState);
     const loginId = useAtomValue(loginIdState);
     const loginLevel = useAtomValue(loginLevelState);
 
-    const [profileUrl, setProfileUrl] = useState("/images/default-profile.jpg");
+    const [profileUrl, setProfileUrl] = useState(`${BASE}/images/default-profile.jpg`);
 
     const cleanData = useCallback(() => {
         setInput("");
@@ -45,7 +45,7 @@ export default function Review({reviews = [], loadReviews}) {
             // setReplyList(data);
 
             // 2) 대표 일정의 세부일정 리스트(객체 리스트)
-            const { data: unitData } = await axios.get(`/review/unit/list/${scheduleNo}`);
+            const { data: unitData } = await axios.get(`/api/review/unit/list/${scheduleNo}`);
             console.log("대표일정 세부일정확인=", unitData);
             setShowUnitList(unitData);
 
@@ -60,16 +60,16 @@ export default function Review({reviews = [], loadReviews}) {
 
     async function loadReviewUnitList(reviewNo) {
         console.log("숫자" + reviewNo)
-        const { data } = await axios.get(`/review/unit/${reviewNo}`);
+        const { data } = await axios.get(`/api/review/unit/${reviewNo}`);
         console.log("유닛리스트 데이터확인", data);
-        setShowReviewUnitList(data); ''
+        setShowReviewUnitList(data);
     }
 
     const sendData = useCallback(async () => {
 
 
         try {
-            const { data } = await axios.post("/review/insert",
+            const { data } = await axios.post("/api/review/insert",
                 {
                     scheduleNo: Number(scheduleNo),
                     scheduleUnitList: scheduleUnitList,
@@ -98,7 +98,7 @@ export default function Review({reviews = [], loadReviews}) {
 
     const deleteScheduleUnitNo = useCallback(async (reviewNo, scheduleUnitNo) => {
         try {
-            await axios.delete(`/review/unit/${reviewNo}`, {
+            await axios.delete(`/api/review/unit/${reviewNo}`, {
                 params: { scheduleUnitNo }
             });
             console.log(scheduleUnitNo);
@@ -120,7 +120,7 @@ export default function Review({reviews = [], loadReviews}) {
 
     const sendUpdateReply = useCallback(async (reply) => {
 
-        await axios.patch(`/review/${reply.reviewNo}`, {
+        await axios.patch(`/api/review/${reply.reviewNo}`, {
             reviewContent: editReply
         });
         setEditReviewNo(null);
@@ -155,7 +155,7 @@ export default function Review({reviews = [], loadReviews}) {
                     title: "삭제 완료!",
                     icon: "success"
                 });
-                await axios.delete(`/review/${reply.reviewNo}`);
+                await axios.delete(`/api/review/${reply.reviewNo}`);
                 await loadReviews?.(); 
 
             }
@@ -164,6 +164,21 @@ export default function Review({reviews = [], loadReviews}) {
         });
 
     }, [])
+
+    function formatDateOnly(v) {
+  if (!v) return "";
+
+  // LocalDateTime 배열 형태 [yyyy, mm, dd, hh, mm, ss, nano]
+  if (Array.isArray(v)) {
+    const [y, m, d] = v;
+    return `${y}.${String(m).padStart(2, "0")}.${String(d).padStart(2, "0")}`;
+  }
+
+  const date = new Date(v);
+  if (isNaN(date.getTime())) return "";
+
+  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
+}
 
 const canEdit = (reply) =>
   reply.reviewWriterType === "USER" && reply.accountId === loginId;
@@ -183,7 +198,11 @@ const canEdit = (reply) =>
 
                     {/* 리스트 */}
                     <div className="reply-list-v3">
-                        {reviews.map((reply, index) => (
+                        {reviews.map((reply) => {
+                            const profileNo =
+                                memberList?.find(m => String(m.accountId) === String(reply.accountId))
+                                    ?.profileAttachmentNo;
+                            return (
                             <div className="reply-card-v3" key={reply.reviewNo}>
                                 {/* 카드 헤더: 프로필/닉네임/시간 + 액션 */}
                                 <div className="reply-card-head-v3">
@@ -191,11 +210,12 @@ const canEdit = (reply) =>
                                         <div className="reply-avatar-wrap-v3">
                                             <img
                                                 className="reply-avatar-v3"
-                                                src={
-                                                    (reply.attachmentNo ?? reply.attachments?.[0]?.attachmentNo)
-                                                        ? `http://192.168.20.16:8080/attachment/download?attachmentNo=${reply.attachmentNo ?? reply.attachments?.[0]?.attachmentNo}`
-                                                        : profileUrl
+                                                 src={
+                                                 profileNo
+                                                ? `${BASE}/api/attachment/download?attachmentNo=${profileNo}`
+                                                : `${BASE}/images/default-profile.jpg`
                                                 }
+                                                onError={(e)=>{e.currentTarget.src = `${BASE}/images/default-profile.jpg`}}
                                                 alt=""
                                             />
                                         </div>
@@ -203,7 +223,7 @@ const canEdit = (reply) =>
                                         <div className="reply-user-meta-v3">
                                             <div className="reply-writer-v3">{reply.reviewWriterNickname}
                                             </div>
-                                            <div className="reply-time-v3">{reply.reviewWtime}</div>
+                                            <div className="reply-time-v3">{formatDateOnly(reply.reviewWtime)}</div>
                                         </div>
                                     </div>
 
@@ -231,7 +251,7 @@ const canEdit = (reply) =>
                                 </div>
 
                                 {/* 댓글에 포함된 세부일정 태그: "표시만" (선택 state랑 분리) */}
-                                {editReviewNo !== reply.reviewNo && reply.scheduleUnitNoList?.filter(Boolean).length > 0 && (
+                                {/* {editReviewNo !== reply.reviewNo && reply.scheduleUnitNoList?.filter(Boolean).length > 0 && (
                                     <div className="reply-tags-v3">
                                         {reply.scheduleUnitNoList
                                             .filter(Boolean)
@@ -240,15 +260,15 @@ const canEdit = (reply) =>
                                                     {index + 1}번 일정 (#{unitNo})
                                                 </span>
                                             ))}
-                                    </div>
-                                )}
+                                    </div> */}
+                                {/* )} */}
 
 
                                 {/* 내용 or 수정모드 (기존 기능 유지) */}
                                 {editReviewNo === reply.reviewNo ? (
                                     <>
                                         {/* 수정모드: 삭제 pill (기존 기능 유지: deleteScheduleUnitNo + hoverIndex) */}
-                                        <div className="reply-pills-v3 edit">
+                                        {/* <div className="reply-pills-v3 edit">
                                             {reply.scheduleUnitNoList
                                                 ?.filter((unitNo, index) => unitNo)
                                                 .map((unitNo, index) => (
@@ -263,7 +283,7 @@ const canEdit = (reply) =>
                                                         {index + 1}번 일정 (#{unitNo}) <TiDelete />
                                                     </span>
                                                 ))}
-                                        </div>
+                                        </div> */}
 
                                         <div className="reply-editbox-v3">
                                             <textarea
@@ -293,11 +313,12 @@ const canEdit = (reply) =>
                                     <div className="reply-content-v3">{reply.reviewContent}</div>
                                 )}
                             </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     {/* 아래 일정 리스트 (기존 기능 유지) */}
-                    <div className="reply-selectwrap-v3">
+                    {/* <div className="reply-selectwrap-v3">
                         <div className="reply-select-title-v3">일정 선택</div>
                         <div className="reply-select-list-v3">
                             {showunitList.map((unit, index) => {
@@ -316,7 +337,7 @@ const canEdit = (reply) =>
                                 );
                             })}
                         </div>
-                    </div>
+                    </div> */}
 
 
                     {/* 입력 바 (기존 기능 유지) */}

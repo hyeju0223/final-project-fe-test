@@ -87,3 +87,6 @@ currentChatIdState.debugLabel = "currentChatIdState";
 messagesByChatIdState.debugLabel = "messagesByChatIdState";
 wsConnectionState.debugLabel = "wsConnectionState";
 guestKeyState.debugLabel = "guestKeyState";
+
+
+export const guestNicknameState = atom("");

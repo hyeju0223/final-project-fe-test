@@ -13,7 +13,7 @@ import { throttle } from "lodash";
 import { useRef } from "react";
 
 export default function AccountPayInformation() {
-
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
     //jotai state
     // const [accessToken, setAccessToken] = useAtom(accessTokenState);
     const [paymentList, setPaymentList] = useState([]);
@@ -39,7 +39,7 @@ export default function AccountPayInformation() {
 
         loading.current = true;
 
-        const response = await axios.get(`/payment/page/${page}`);
+        const response = await axios.get(`/api/payment/page/${page}`);
         if (page === 1) {
             setPaymentList(response.data.list);
         }

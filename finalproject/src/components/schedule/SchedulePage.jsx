@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Reply from "./Reply";
 // import Review from "./Review";
 import Schedule from "./Schedule";
@@ -18,6 +18,9 @@ import Review from "./Review";
 
 
 export default function SchedulePage() {
+
+    const navigate = useNavigate();
+        const { scheduleNo } = useParams();
     KakaoLoader()
     const accessToken = useAtomValue(accessTokenState);
     const guest = useAtomValue(guestState);
@@ -54,24 +57,60 @@ export default function SchedulePage() {
         TIME: false,
         DISTANCE: false
     })
-    const [selectedSearch, setSelectedSearch] = useState("CAR")
+    const [selectedSearch, setSelectedSearch] = useState("CAR");
+
     const copyUrl = useCallback(async () => {
 
-        try {
+        // try {
 
-            const { data } = await axios.get(`/schedule/share/${scheduleNo}`);
-            console.log("shareKey", data);
+        //     const { data } = await axios.get(`/api/schedule/share/${scheduleNo}`);
+        //     console.log("shareKey", data);
+        //     const url = `${window.location.origin}${import.meta.env.BASE_URL.replace(/\/$/, "")}/share/${data}`;
+        //     await navigator.clipboard.writeText(url);
 
-            const url = `${window.location.origin}/share/${data}`;
-            await navigator.clipboard.writeText(url);
+    
+        // } catch (error) {
+        //     console.log(error)
+        //     toast.error('링크 생성 실패');
+        // }
 
-            toast.success("링크 복사 완료")
-        } catch (error) {
-            console.log(error)
-            toast.error('링크 생성 실패');
-        }
+         try {
+    // 공유키 받아오기
+    const { data } = await axios.get(`/api/schedule/share/${scheduleNo}`);
+    const shareKey = data;
 
-    }, []);
+    // 복사할 최종 URL 만들기
+    const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+    const text = `${window.location.origin}${base}/share/${shareKey}`;
+
+    // 1) clipboard API 가능하면 그걸로
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      toast.success("링크 복사 완료!");
+      return;
+    }
+
+    // 2) fallback: execCommand
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    textarea.style.top = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    const ok = document.execCommand("copy");
+    document.body.removeChild(textarea);
+
+    if (!ok) throw new Error("copy failed");
+    toast.success("링크 복사 완료!");
+  } catch (error) {
+    console.log(error);
+    toast.error("링크 복사 실패");
+  }
+
+    }, [scheduleNo]);
     const [center, setCenter] = useState({
         lng: 126.9780,
         lat: 37.5665,
@@ -104,7 +143,7 @@ export default function SchedulePage() {
         }
          */
     ])
-    const { scheduleNo } = useParams();
+
     const [scheduleDto, setScheduleDto] = useState({
         scheduleName: "",
         schedulePublic: false,
@@ -129,7 +168,7 @@ export default function SchedulePage() {
         const id = uuidv4();
         const address = { x: latlng.getLng(), y: latlng.getLat() };
 
-        const { data } = await axios.post("/kakaoMap/getAddress", address);
+        const { data } = await axios.post("/api/kakaoMap/getAddress", address);
         const addressName = data.documents.map(({ address, road_address }) => {
             if (road_address === null) return address.address_name;
             return road_address.building_name || road_address.road_name || road_address.address_name;
@@ -360,8 +399,8 @@ export default function SchedulePage() {
                     // 2. 캐시에 없으면 API 요청 목록에 추가
                     console.log(`%c[캐시 실패] ${cacheKey} - 서버에 새로 요청합니다.`, "color: #FF9800; font-weight: bold");
                     const baseUrl = mode === "CAR"
-                        ? (markerIds.length === 2 ? "/kakaoMap/search" : "/kakaoMap/searchAll")
-                        : "/kakaoMap/searchForWalk";
+                        ? (markerIds.length === 2 ? "/api/kakaoMap/search" : "/api/kakaoMap/searchAll")
+                        : "/api/kakaoMap/searchForWalk";
 
                     requests.push({
                         dayKey, mode, priority, currentOrderKey, // 나중에 캐시에 저장하기 위해 orderKey 포함
@@ -448,7 +487,7 @@ export default function SchedulePage() {
     // 주소 검색
     const addMarkerForSearch = useCallback(async () => {
         setSearchList([]);
-        const { data } = await axios.post("/kakaoMap/searchAddress", searchData);
+        const { data } = await axios.post("/api/kakaoMap/searchAddress", searchData);
         // const {documents} = data;
         // console.log(data);
         data.map(element => {
@@ -493,7 +532,7 @@ export default function SchedulePage() {
                 schedulePublic: scheduleDto.schedulePublic ? "Y" : "N"
             }
         };
-        const { data } = await axios.post("/kakaoMap/insertData", payload)
+        const { data } = await axios.post("/api/kakaoMap/insertData", payload)
         console.log(data);
         setScheduleDto(prev => ({
             ...prev,
@@ -501,6 +540,9 @@ export default function SchedulePage() {
             scheduleState: data.scheduleState,
             schedulePublic: data.schedulePublic === "Y"
         }));
+
+        toast.success("일정 등록이 완료되었습니다.");
+        navigate(`/schedulePage/${data.scheduleNo}`, { replace: true });
     }, [days, markerData, scheduleDto])
 
     const routeHistory = useRef({});
@@ -509,7 +551,7 @@ export default function SchedulePage() {
         if (!scheduleNo) return;
         setIsLoading(true);
         try {
-            const response = await axios.post(`/schedule/detail`, scheduleDto);
+            const response = await axios.post(`/api/schedule/detail`, scheduleDto);
             const wrapper = response.data; // ScheduleInsertDataWrapperVO 객체
 
             // 1. 일정 상세 데이터 (days, markerData) 처리
@@ -589,14 +631,14 @@ export default function SchedulePage() {
     }, [selectedDay, days, selectedSearch, selectedType]);
 
     const loadMember = useCallback(async () => {
-        const { data } = await axios.get(`/schedule/memberList/${scheduleNo}`);
+        const { data } = await axios.get(`/api/schedule/memberList/${scheduleNo}`);
         setMemberList(data);
     }, [scheduleNo]);
 
     //일정 시작 시간에 따른 상태를 바꾸기 위한 콜백
     const refreshScheduleState = useCallback(async () => {
         if (!scheduleNo) return;
-        const { data } = await axios.patch(`/schedule/${scheduleNo}/state`);
+        const { data } = await axios.patch(`/api/schedule/${scheduleNo}/state`);
         // data 예: { scheduleNo, scheduleState, scheduleStartDate, scheduleEndDate }
         setScheduleDto(prev => ({
             ...prev,
@@ -627,7 +669,7 @@ export default function SchedulePage() {
 
         (async () => {
             try {
-                await axios.post(`/share/member/${scheduleNo}`, { accountId: loginId });
+                await axios.post(`/api/share/member/${scheduleNo}`, { accountId: loginId });
 
                 loadMember();
             } catch (e) {
@@ -714,7 +756,7 @@ export default function SchedulePage() {
 
         if (!result.isConfirmed) return;
 
-        await axios.patch("/schedule/public", {
+        await axios.patch("/api/schedule/public", {
             scheduleNo: Number(scheduleDto.scheduleNo),
             schedulePublic: nextState,
         });
@@ -736,14 +778,14 @@ export default function SchedulePage() {
     const [reviews, setReviews] = useState([]);
 
     const loadReviews = useCallback(async () => {
-        const { data } = await axios.get(`/review/list/${scheduleNo}`);
+        const { data } = await axios.get(`/api/review/list/${scheduleNo}`);
         setReviews(data);
             console.log("댓글데이터확인",data);
 
     }, [scheduleNo]);
 
     const deleteReview = async (reviewNo) => {
-  await axios.delete(`/review/${reviewNo}`);
+  await axios.delete(`/api/review/${reviewNo}`);
   await loadReviews(); 
 };
 
@@ -756,7 +798,7 @@ export default function SchedulePage() {
 
     const handleSubmit = async (payload) => {
         await axios.post(
-            "/review/insert",
+            "/api/review/insert",
             {
                 scheduleNo: Number(scheduleNo),
                 reviewContent: payload.reviewContent,
@@ -884,13 +926,16 @@ export default function SchedulePage() {
 
                             {isEnded && (
                                 isPublic ? (
-                                     <Review reviews={publicReviews}  onDelete={deleteReview} 
+                                     <Review reviews={publicReviews}
+                                     memberList={memberList}
+                                     onDelete={deleteReview} 
                                      loadReviews={loadReviews}/>          // 공개후기
                                 ) : (
                                     <MemberReview       // 멤버후기
                                         reviews={memberReviews}
                                         canWrite={true}
                                         isGuest={guest}
+                                        memberList={memberList}
                                          onDelete={deleteReview}
                                         onSubmit={handleSubmit}
                                         loadReviews={loadReviews}

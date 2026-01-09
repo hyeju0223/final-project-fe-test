@@ -69,6 +69,7 @@ export default function MemberReview({
       toast.error("후기 등록 실패");
     }
   }, [content, rating, onSubmit, closeModal]);
+  
 
   return (
     <>

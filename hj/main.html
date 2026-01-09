@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <style>
+    .body {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    .menu {
+        display: flex;
+        background-color: rgb(255, 255, 255);
+        color: rgb(65, 188, 137);
+        padding: 10px;
+        justify-content: space-around;
+        align-items: center;
+        font-size: larger;
+    }
+    .profile {
+        border-radius: 50%;
+    }
+
+    .profile-section {
+        padding: 40px;
+        text-align: center;
+        margin-top: 20px;
+        background: linear-gradient(rgb(170, 255, 230), #aff6ff);
+    }
+        .profile {
+        margin-top: 50px;
+        border-radius: 50%;
+    }
+    .title {
+        font-size: 36px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        /* color: linear-gradient(rgb(170, 255, 230), #aff6ff); */
+        color: rgb(123, 198, 175);
+
+    }
+    .about-section {
+        padding: 40px;
+        text-align: center;
+        margin-top: 20px;
+        background-color: #ffffff;
+    }
+
+    .project-section {
+        padding: 40px;
+        text-align: center;
+        margin-top: 20px;
+        /* background-color: #f7f7f7; */
+    }
+
+    .project-box {
+        /* border: #888888 1px solid; */
+        box-shadow: 0 0 10px #dddddd;
+        border-radius: 5px;
+        padding: 20px;
+        margin: 10px;
+        background-color: #fff;
+    }
+
+    .project-image {
+        margin-top: 20px;
+        border-radius: 10px;
+        width: 80%;
+        height: 300px;
+    }
+    .tag-area {
+        margin-top: 20px;
+    }
+
+    .tag {
+        margin: 2px;
+        padding: 2px;
+        padding-left: 8px;
+        padding-right: 8px;
+        background-color: #b1ead1;
+        border-radius: 5px;
+        color: #3d8c54;
+        font-size: small;
+    }
+    
+    .image-area {
+        margin-top: 5px;
+    }
+
+    .footer {
+        text-align: center;
+        padding: 20px;
+        color: #ffffff;
+        margin-top: 20px;
+        font-size: small;
+    }
+   </style>
+</head>
+
+
+
+<body>
+    <div class="menu">
+        <div style="font-weight: bold; font-size: larger;">Hyeju's Portfolio</div>
+        <div>About</div>
+        <div>Projects</div>
+        <div>Contact</div>
+    </div>
+<div class="profile-section">
+    <div class="profile-area">
+        <img
+        class="profile"
+        src="https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20251112_23%2F1762942315640QUz9n_JPEG%2F17469298420074406_1654671550.jpg&type=sc960_832"
+        width="200" height="200">
+    </div>
+    <div><h2>Hi, I'm Hyeju.</h2></div>
+    <div>드러나지 않는 고민을 쌓아, 화면 위의 편안함을 만듭니다.</div>
+</div>
+<div class="about-section">
+    <div><h2>About Me</h2></div>
+    <div>보이지 않는 흐름을 먼저 고민하며,<br>
+백엔드와 프론트를 연결해 생각합니다.<br><br>
+안정성과 감각 사이의 균형을 중요하게 여기고,<br>
+기능 너머의 경험을 만들고 싶습니다.<br><br>
+오늘도 이유 있는 개발을 향해 나아가고 있습니다.</div>
+</div>
+<div class="project-section">
+    <h2 class="title">Projects</h2>
+
+    <!-- /* 프로젝트 박스 1 */ -->
+    <div class="project-box">
+        <div><h3>TripPlanner</h3></div>
+        <div>일정과 지도를 함께 제공하며, 비회원도 일정 조회가 가능한 지도 기반 일정 관리 서비스입니다.</div>
+        <div class="tag-area">
+            <span class="tag">React</span>
+            <span class="tag">HTML</span>
+            <span class="tag">CSS</span>
+            <span class="tag">AJAX</span>
+            <span class="tag">AWS EC2</span>
+            <span class="tag">JavaScript</span>
+        </div>
+        <div class="image-area">
+            <img 
+            class="project-image"
+            src="img/ChatGPT Image 2025년 12월 21일 오후 09_23_18.png"
+            >
+        </div>
+    </div>
+    <!-- /* 프로젝트 박스 2 */ -->
+    <div class="project-box">
+        <div><h3>ImagePix – 이미지 검색 서비스 프론트엔드 개발</h3></div>
+        <div>- 유저가 키워드를 검색하여 원하는 이미지를 쉽게 찾을 수 있는 이미지 추적 플랫폼 개발<br>
+        - 기존 실사 이미지뿐만 아니라 AI가 만든 독창적인 이미지도 함께 제공<br>
+        - 리눅스 기반 웹 서버 및 DB 서버를 구축하고, 아파치 및 MySQL을 연동하여 독립적인 서비스 환경 구성<br>
+        </div>
+        <div class="tag-area">
+            <span class="tag">HTML</span>
+            <span class="tag">CSS</span>
+            <span class="tag">JavaScript</span>
+            <span class="tag">jQuery</span>
+            <span class="tag">AJAX</span>
+            <span class="tag">PHP</span>
+            <span class="tag">Apache</span>
+            <span class="tag">MySQL</span>
+            <span class="tag">AWS EC2</span>
+        </div>
+        <div class="image-area">
+            <img 
+            class="project-image"
+            src="img/imagepix_main.png"
+            >
+        </div>
+    </div>
+    <!-- /* 프로젝트 박스 1 */ -->
+    <div class="project-box">
+        <div><h3>청운속기사무소 - 프론트엔드 개발</h3></div>
+        <div>사용자가 음성파일을 올리고 의뢰를 하면, 대용량 음성 파일이 구글 클라우드(GCS)에 업로드되어 서버 유지비용이 매우 저렴한 운영방식으로 설계된 녹취록 의뢰 사이트 개발</div>
+        <div class="tag-area">
+            <span class="tag">HTML</span>
+            <span class="tag">CSS</span>
+            <span class="tag">JavaScript</span>
+            <span class="tag">jQuery</span>
+            <span class="tag">PHP</span>
+            <span class="tag">PHP</span>
+            <span class="tag">Apache</span>
+            <span class="tag">GCS</span>
+            <span class="tag">AWS EC2</span>
+        </div>
+        <div class="image-area">
+            <img 
+            class="project-image"
+            src="img/cw_main.png"
+            >
+        </div>
+    </div>
+    <!-- /* 프로젝트 박스 1 */ -->
+    <div class="project-box">
+        <div><h3>우수렌트카 – 렌트 예약 웹 개발</h3></div>
+        <div>- 커스텀 달력 기반으로 대차일/반납일에 따라 자동 할인율 적용이 가능한 실시간 차량 예약 시스템
+- 사용자 편의를 고려한 예약, 검색, 결제, 정보 확인 등 통합 UI 개발</div>
+        <div class="tag-area">
+            <span class="tag">HTML</span>
+            <span class="tag">CSS</span>
+            <span class="tag">JavaScript</span>
+            <span class="tag">jQuery</span>
+            <span class="tag">AJAX</span>
+            <span class="tag">PHP</span>
+            <span class="tag">Apache</span>
+            <span class="tag">MySQL</span>
+            <span class="tag">AWS EC2</span>
+        </div>
+        <div class="image-area">
+            <img 
+            class="project-image"
+            src="img/woosoo_main.png"
+            >
+        </div>
+    </div>
+    <!-- /* 프로젝트 박스 1 */ -->
+    <div class="project-box">
+        <div><h3>TripPlanner</h3></div>
+        <div>일정과 지도를 함께 제공하며, 비회원도 일정 조회가 가능한 지도 기반 일정 관리 서비스입니다.</div>
+        <div class="tag-area">
+            <span class="tag">React</span>
+            <span class="tag">HTML</span>
+            <span class="tag">CSS</span>
+            <span class="tag">AJAX</span>
+            <span class="tag">AWS EC2</span>
+            <span class="tag">JavaScript</span>
+        </div>
+        <div class="image-area">
+            <img 
+            class="project-image"
+            src="img/ChatGPT Image 2025년 12월 21일 오후 09_23_18.png"
+            >
+        </div>
+    </div>
+</div>
+<div class="profile-section">
+    <div><h2>Contact</h2></div>
+    <div>이메일 : juya_0223@naver.com</div>
+    <div style="margin-top: 10px;">휴대폰 : 010-9188-0659</div>
+    <a href="https://juya0223.tistory.com/"><img style="margin-top: 20px;"
+    width="30px"
+    src="https://www.basicincomeparty.kr/wp-content/uploads/2020/11/tistory-logo-fill_white.png"
+    ></a>
+</div>
+<div class="footer">
+    © 2026 Hyeju. All rights reserved.
+</div>
+</body>
+</html>

@@ -11,7 +11,7 @@ export default function Menu() {
   // 이동 도구
   const navigate = useNavigate();
   const location = useLocation();
-
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   // jotai state
   const [loginId, setloginId] = useAtom(loginIdState);
@@ -75,11 +75,27 @@ export default function Menu() {
 
     clearLogin();
 
-    await axios.delete("/account/logout");
+    await axios.delete("/api/account/logout");
     delete axios.defaults.headers.common["Authorization"];
     navigate("/");
     closeMenu();
   });
+
+  const goPay = useCallback((e) => {
+  e?.preventDefault?.();
+  e?.stopPropagation?.();
+
+  if (!isLogin) {
+    alert("로그인이 필요합니다");
+    navigate("/account/login", {
+      state: { redirectTo: "/kakaopay/buy" },
+      replace: true,
+    });
+    return;
+  }
+
+  navigate("/kakaopay/buy");
+}, [isLogin, navigate]);
 
   // --- [디자인] Minty 테마 스타일 객체 ---
   const styles = {
@@ -193,7 +209,7 @@ export default function Menu() {
           <Link className="navbar-brand" to="/" style={styles.brand}>
             {/* [수정] 로고 이미지 추가 (기존 아이콘 대체) */}
             <img
-              src="/images/logo.png"
+              src={`${BASE}/images/logo.png`}
               alt="Logo"
               style={{ height: "50px", marginRight: "5px", marginTop: "5px", objectFit: "contain" }}
               onError={(e) => e.target.style.display = 'none'} // 이미지 없으면 숨김
@@ -228,7 +244,7 @@ export default function Menu() {
                 </Link>
               </li>
               <li className="nav-item" onClick={closeMenu}>
-                <Link className="nav-link" to="/kakaopay/buy" style={styles.navLink}>
+                <Link className="nav-link" to="/kakaopay/buy" onClick={goPay} style={styles.navLink}>
                   <CiMap style={{ fontSize: "1.2rem" }} /> 결제
                 </Link>
               </li>

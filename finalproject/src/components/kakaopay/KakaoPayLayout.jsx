@@ -1,6 +1,9 @@
 // import "./KakaoPay.css";
 
 export default function KakaoPayLayout({ title, children }) {
+  
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
   return (
     <div className="child-fullscreen">
       <div className="kakao-bg">
@@ -10,7 +13,7 @@ export default function KakaoPayLayout({ title, children }) {
             <div className="kakao-panel__content">
 
               <div className="kakao-logo">
-                <img src="/images/pay-logo.svg" alt="logo" />
+                <img src={`${BASE}/images/pay-logo.svg`} alt="logo" />
               </div>
               <div className="kakao-box">
                 <h2 className="kakao-title">{title}</h2>

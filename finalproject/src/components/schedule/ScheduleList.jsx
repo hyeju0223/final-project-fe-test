@@ -5,6 +5,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+
+
 // --- [내장 훅] 데이터 더보기 및 상태 관리 기능 ---
 // 별도 파일 import 오류 방지를 위해 내부에 정의합니다.
 const usePagination = (url, limit = 6) => {
@@ -66,11 +68,12 @@ const usePagination = (url, limit = 6) => {
 
 
 export default function ScheduleList() {
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
   const navigate = useNavigate();
   dayjs.locale('ko');
 
   // 내장된 usePagination 훅 사용
-  const { list: schedule, hasMore, nextPage, updateItem } = usePagination("/schedule/", 6);
+  const { list: schedule, hasMore, nextPage, updateItem } = usePagination(`/api/schedule/all`, 6);
 
   const MINT_COLOR = "#78C2AD";
 
@@ -81,7 +84,7 @@ export default function ScheduleList() {
 
     try {
       // 서버에 좋아요 요청
-      const response = await axios.post(`/account/scheduleLike/${item.scheduleNo}`);
+      const response = await axios.post(`/api/account/scheduleLike/${item.scheduleNo}`);
 
       const newCountFromServer = response.data;
       const currentIsLiked = item.isLiked;
@@ -146,8 +149,8 @@ export default function ScheduleList() {
                     style={{ height: "100%", width: "100%", objectFit: "cover" }}
                     src={
                       item.scheduleImage
-                        ? `http://192.168.20.16:8080/attachment/download/${item.scheduleImage}`
-                        : "/images/default-schedule.png"
+                        ? `${BASE}/api/attachment/download?attachmentNo=${item.scheduleImage}`
+                        : `${BASE}/images/default-schedule.png`
                     }
                     alt={item.scheduleName}
                   // onError={(e) => (console.log(e))}
